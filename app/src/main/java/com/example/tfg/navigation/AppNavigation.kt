@@ -1,12 +1,13 @@
 package com.example.tfg.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.tfg.screens.AccountScreen
 import com.example.tfg.screens.CalendarScreen
 import com.example.tfg.screens.DogsScreen
@@ -18,8 +19,7 @@ fun AppNavigation(
     navController: NavHostController
 ){
     Column {
-        NavHost(navController =
-        navController,
+        NavHost(navController = navController,
             startDestination = AppScreens.LoginScreen.route,
             modifier = Modifier.weight(1f)
         ) {

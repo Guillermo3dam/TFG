@@ -2,6 +2,7 @@ package com.example.tfg.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -23,7 +24,7 @@ sealed class AppScreens (
         "Mi cuenta",
         "account_screen")
     object CalendarScreen : AppScreens(
-        Icons.Outlined.DateRange,
+        Icons.Outlined.CalendarMonth,
         "Eventos",
         "calendar_screen")
 

@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -23,10 +26,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,15 +48,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.tfg.R
 import com.example.tfg.navigation.AppScreens
+import com.example.tfg.navigation.BottomNavigation
 
 
 @Composable
 fun LoginScreen(navController: NavController) {
+
+    //nuevaLogin(navController)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -78,6 +88,9 @@ fun LoginScreen(navController: NavController) {
         }
     }
 }
+
+
+
 
 @Composable
 fun Cabecera(modificador: Modifier) {
@@ -183,7 +196,7 @@ fun BotonLogin(navController : NavController) {
 
                       },
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(2, 167, 36)
+                containerColor = Color(0xFF57B262)
             ),
             shape = MaterialTheme.shapes.small,
             modifier = Modifier
@@ -209,7 +222,7 @@ fun TextoOlvidoContraseña() {
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = "¿Has olvidado tu contraseña?",
-            color = Color(2, 167, 36),
+            color = Color(0xFF57B262),
             modifier = Modifier
                 .clickable {  }
         )
@@ -255,7 +268,7 @@ fun TextoRegistro() {
         Spacer(modifier = Modifier.padding(4.dp))
         Text(
             text = "Regístrate ahora.",
-            color = Color(2, 167, 36),
+            color =  Color(0xFF57B262),
             modifier = Modifier
                 .clickable {
 
@@ -263,3 +276,174 @@ fun TextoRegistro() {
         )
     }
 }
+
+
+@Composable
+fun nuevaLogin(navController: NavController){
+
+    val showLoginForm = rememberSaveable {
+        mutableStateOf(true)
+    }
+    Surface(modifier = Modifier.fillMaxSize()
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            if(showLoginForm.value){
+                Text(text = "Inicia sesion")
+                UserForm(
+                    isCreateAccount = false
+                ){
+                    email, password ->
+                }
+            }
+            else{
+                Text(text = "Crea una cuenta")
+
+                UserForm(
+                    isCreateAccount = true
+                )
+                {
+                        email, password ->
+                }
+            }
+        }
+    }
+
+}
+
+@Composable
+fun UserForm(
+    isCreateAccount: Boolean = false,
+    onDone: (String, String) -> Unit = {email, pw ->}
+) {
+    val email = rememberSaveable {
+        mutableStateOf("")
+    }
+    val password = rememberSaveable {
+        mutableStateOf("")
+    }
+    val passwordVisible = rememberSaveable {
+        mutableStateOf(false)
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        EmailInput(
+            emailState = email
+        )
+        PasswordInput(
+            passwordState = password,
+            labelId = "Password",
+            passwordVisible = passwordVisible
+        )
+        SubmitButton(
+            textId = if(isCreateAccount) "Crear cuenta" else "Login"
+        )
+    }
+}
+
+@Composable
+fun SubmitButton(
+    textId: String
+) {
+    Button(onClick = {
+    /*TODO*/ },
+        colors = ButtonDefaults.buttonColors(
+        containerColor = Color(0xFF57B262)
+    ),
+        shape = MaterialTheme.shapes.small,
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable { true }
+            .fillMaxWidth()
+    ) {
+        Text(text = textId,
+            modifier = Modifier
+                .padding(5.dp)
+        )
+    }
+}
+
+@Composable
+fun PasswordInput(
+    passwordState: MutableState<String>,
+    labelId: String,
+    passwordVisible: MutableState<Boolean>
+) {
+    val visualTransformation = if(passwordVisible.value)
+        VisualTransformation.None
+    else PasswordVisualTransformation()
+
+    OutlinedTextField(
+        value = passwordState.value,
+        onValueChange = {passwordState.value = it},
+        label = { Text(text = labelId)},
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password
+        ),
+        modifier = Modifier
+            .padding(bottom = 10.dp, start = 10.dp, end= 10.dp),
+        visualTransformation =visualTransformation,
+        trailingIcon = {
+            if(passwordState.value.isNotBlank()){
+                PasswordVisibleIcon(passwordVisible)
+            }
+            else null
+        }
+
+
+        )
+}
+
+@Composable
+fun PasswordVisibleIcon(
+    passwordVisible: MutableState<Boolean>
+) {
+    val image = if(passwordVisible.value)
+        Icons.Default.VisibilityOff
+    else
+        Icons.Default.Visibility
+    IconButton(onClick = {
+        passwordVisible.value = !passwordVisible.value
+    }) {
+        Icon(
+            imageVector = image,
+            contentDescription = "")
+    }
+}
+
+@Composable
+fun EmailInput(
+    emailState: MutableState<String>,
+    labelId : String = "Email"
+) {
+    InputField(
+        valueState = emailState,
+        labelId = labelId,
+        keyboardType = KeyboardType.Email
+    )
+}
+
+@Composable
+fun InputField(
+    valueState: MutableState<String>,
+    labelId: String,
+    keyboardType: KeyboardType,
+    isSingleLine : Boolean = true
+) {
+    OutlinedTextField(
+        value = valueState.value,
+        onValueChange = {valueState.value = it},
+        label = { Text(text = labelId)},
+        singleLine = isSingleLine,
+        modifier = Modifier
+            .padding(bottom = 10.dp, start = 10.dp, end= 10.dp),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType
+        )
+
+    )
+}
+
+
+
+

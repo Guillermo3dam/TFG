@@ -11,15 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.tfg.navigation.AppScreens
+import com.example.tfg.navigation.BottomNavigation
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(navController: NavController) {
-    Scaffold {
-        BodyContent(navController)
-    }
+fun HomeScreen(navController: NavHostController) {
+    BodyContent(navController)
 }
 
 
