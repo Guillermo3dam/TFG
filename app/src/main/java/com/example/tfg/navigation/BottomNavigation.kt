@@ -57,13 +57,13 @@ fun BottomNavigation(
                                     Icon(
                                         imageVector = icon,
                                         contentDescription = item.title,
-                                        tint = if (selectedIcon.value == icon)  Color(0xFF57B262) else Color.Black // Cambiar el color del icono seleccionado
+                                        tint = if (selectedIcon.value == icon)  Color(0xFF57B262) else Color.Black
                                     )
                                 }
                             },
                             label = {
                                 item.title?.let { title ->
-                                    Text(text = title, color = if (title == selectedTitle.value)  Color(0xFF57B262) else Color.Black) // Cambiar el color del título seleccionado
+                                    Text(text = title, color = if (title == selectedTitle.value)  Color(0xFF57B262) else Color.Black)
                                 }
                             }
                         )

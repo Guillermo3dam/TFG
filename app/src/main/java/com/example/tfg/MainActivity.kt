@@ -10,9 +10,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.tfg.navigation.AppNavigation
+import com.example.tfg.navigation.AppScreens
 import com.example.tfg.navigation.BottomNavigation
 import com.example.tfg.ui.theme.TFGTheme
 import com.example.tfg.navigation.AppScreens.LoginScreen
@@ -20,11 +20,9 @@ import com.example.tfg.navigation.currentRoute
 
 
 class MainActivity : ComponentActivity() {
-    //private val dbHelper = DatabaseHelper()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //FirebaseApp.initializeApp(this)
 
         setContent {
             TFGTheme {
@@ -47,7 +45,7 @@ fun MainScreen() {
 
         Scaffold(
             bottomBar = {
-                if (!currentRoute(navController).equals(LoginScreen.route))
+                if (!currentRoute(navController).equals(LoginScreen.route)  && !currentRoute(navController).equals(AppScreens.UpdatePasswordScreen.route) )
                     BottomNavigation(navController)
             }
         ) {
@@ -58,19 +56,3 @@ fun MainScreen() {
             }
         }
 }
-
-
-
-@Composable
-fun UserInputField(hint: String) {
-    // Aquí implementa el campo de entrada de texto para el usuario y contraseña
-    // Puedes usar la API de composición de Jetpack para crear los campos de entrada
-    // como TextField y PasswordField
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview(){
-    //AppNavigation()
-}
-

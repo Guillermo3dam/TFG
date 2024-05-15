@@ -138,7 +138,7 @@ fun MonthHeader(month: CalendarMonth) {
                     .padding(8.dp)
             )
             Text(
-                text = "$monthName  ${year.toString()}",
+                text = "$monthName  $year",
                 style = androidx.compose.ui.text.TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,

@@ -1,6 +1,8 @@
 package com.example.tfg.screens
 
 import android.app.Activity
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,11 +25,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -42,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -50,17 +53,19 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.tfg.R
 import com.example.tfg.navigation.AppScreens
-import com.example.tfg.navigation.BottomNavigation
+import com.example.tfg.models.viewmodels.LoginViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 
 @Composable
 fun LoginScreen(navController: NavController) {
 
-    //nuevaLogin(navController)
-
+    nuevaLogin(navController)
+/*
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -86,7 +91,7 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.padding(65.dp))
             TextoRegistro()
         }
-    }
+    }*/
 }
 
 
@@ -102,15 +107,13 @@ fun Cabecera(modificador: Modifier) {
 }
 
 @Composable
-fun Imagen(){
-    Row (verticalAlignment = Alignment.CenterVertically){
+fun Logo(){
         Image(
             painter = painterResource(id = R.drawable.boxer),
             contentDescription = "logo",
             modifier = Modifier
                 .size(200.dp, 85.dp)
         )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -212,19 +215,20 @@ fun BotonLogin(navController : NavController) {
 
 
 @Composable
-fun TextoOlvidoContraseña() {
+fun ForgorPassword(navController : NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(end = 20.dp)
+            .padding(top = 8.dp, end = 15.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = "¿Has olvidado tu contraseña?",
             color = Color(0xFF57B262),
             modifier = Modifier
-                .clickable {  }
+                .clickable {
+                    navController.navigate(route = AppScreens.ForgotPasswordScreen.route)
+                }
         )
     }
 }
@@ -253,8 +257,8 @@ fun DivisorOR(){
 }
 
 @Composable
-fun TextoRegistro() {
-    Divider(
+fun SignUp() {
+    HorizontalDivider(
         modifier = Modifier
             .fillMaxWidth()
             .height(1.dp)
@@ -279,32 +283,81 @@ fun TextoRegistro() {
 
 
 @Composable
-fun nuevaLogin(navController: NavController){
+fun nuevaLogin(
+    navController: NavController,
+    viewModel: LoginViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    ){
 
     val showLoginForm = rememberSaveable {
         mutableStateOf(true)
     }
-    Surface(modifier = Modifier.fillMaxSize()
-    ) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)){
+
         Column(horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(top = 50.dp)) {
+            Logo()
+            Spacer(modifier = Modifier.padding(top = 70.dp ))
             if(showLoginForm.value){
-                Text(text = "Inicia sesion")
+                Text(text = "Inicia sesion",
+                    color = Color.Black)
                 UserForm(
-                    isCreateAccount = false
+                    isCreateAccount = false,
+                    navController = navController
                 ){
                     email, password ->
+                    Log.d("BestFriend", "Logueando con $email y $password")
+                    viewModel.signInWithEmailAndPassword(email, password){
+                        navController.navigate(route = AppScreens.HomeScreen.route)
+                    }
                 }
             }
             else{
-                Text(text = "Crea una cuenta")
-
+                Text(text = "Crea una cuenta",
+                    color = Color.Black)
                 UserForm(
-                    isCreateAccount = true
+                    isCreateAccount = true,
+                    navController = navController
                 )
                 {
-                        email, password ->
+                    email, password ->
+                    Log.d("BestFriend", "Creando cuenta con $email y $password")
+                    viewModel.createUsersWithEmailAndPassword(email, password){
+                        navController.navigate(route = AppScreens.HomeScreen.route)
+
+                    }
                 }
+            }
+            Spacer(modifier = Modifier.padding(top = 158.dp))
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+            )
+            Spacer(modifier = Modifier.padding(top = 14.dp))
+            Row (
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                val text1 =
+                    if(showLoginForm.value) "¿No tienes cuenta?"
+                else "¿Ya tienes cuenta?"
+                val text2 =
+                    if(showLoginForm.value) "¿Regístrate?"
+                    else "¿Inicia sesión?"
+
+                Text(text = text1, color = Color.Black)
+                Text(text = text2,
+                    modifier = Modifier
+                        .clickable { showLoginForm.value = !showLoginForm.value }
+                        .padding(start = 5.dp),
+                    color =  Color(0xFF57B262),
+                )
+
             }
         }
     }
@@ -313,6 +366,7 @@ fun nuevaLogin(navController: NavController){
 
 @Composable
 fun UserForm(
+    navController : NavController,
     isCreateAccount: Boolean = false,
     onDone: (String, String) -> Unit = {email, pw ->}
 ) {
@@ -325,34 +379,53 @@ fun UserForm(
     val passwordVisible = rememberSaveable {
         mutableStateOf(false)
     }
+    val valido = remember (email.value, password.value){
+        email.value.trim().isNotEmpty() &&
+                password.value.trim().isNotEmpty()
+    }
+    val keyboardController = LocalSoftwareKeyboardController.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         EmailInput(
             emailState = email
         )
         PasswordInput(
             passwordState = password,
-            labelId = "Password",
+            labelId = "Contraseña",
             passwordVisible = passwordVisible
         )
+        if(!isCreateAccount)
+            ForgorPassword(navController)
+        else
+            Spacer(modifier = Modifier.padding(16.dp))
+
+
+
+        Spacer(modifier = Modifier.padding(8.dp))
         SubmitButton(
-            textId = if(isCreateAccount) "Crear cuenta" else "Login"
-        )
+            textId = if(isCreateAccount) "Registrarse" else "Entrar",
+            inputValido = valido
+        ){
+            onDone(email.value.trim(), password.value.trim())
+            keyboardController?.hide()
+        }
     }
 }
 
 @Composable
 fun SubmitButton(
-    textId: String
+    textId: String,
+    inputValido : Boolean,
+    onClick : () -> Unit
 ) {
-    Button(onClick = {
-    /*TODO*/ },
+    Button(onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-        containerColor = Color(0xFF57B262)
+        containerColor = Color(0xFF57B262),
+            disabledContainerColor = Color(0xFF57B262)
     ),
         shape = MaterialTheme.shapes.small,
+        enabled = inputValido,
         modifier = Modifier
-            .padding(16.dp)
-            .clickable { true }
+            .padding(15.dp)
             .fillMaxWidth()
     ) {
         Text(text = textId,
@@ -362,6 +435,7 @@ fun SubmitButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordInput(
     passwordState: MutableState<String>,
@@ -375,23 +449,30 @@ fun PasswordInput(
     OutlinedTextField(
         value = passwordState.value,
         onValueChange = {passwordState.value = it},
-        label = { Text(text = labelId)},
+        label = { Text(text = labelId, color = Color.Black)},
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Password
         ),
         modifier = Modifier
-            .padding(bottom = 10.dp, start = 10.dp, end= 10.dp),
+            .padding(bottom = 15.dp, start = 15.dp, end = 15.dp)
+            .fillMaxWidth(),
         visualTransformation =visualTransformation,
         trailingIcon = {
             if(passwordState.value.isNotBlank()){
                 PasswordVisibleIcon(passwordVisible)
             }
             else null
-        }
-
+        },
+        textStyle = TextStyle(color = Color.Black),
+        colors = TextFieldDefaults.textFieldColors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            cursorColor = Color.Black,
+            containerColor = Color(241, 248, 247)
 
         )
+    )
 }
 
 @Composable
@@ -407,7 +488,8 @@ fun PasswordVisibleIcon(
     }) {
         Icon(
             imageVector = image,
-            contentDescription = "")
+            contentDescription = "",
+            tint = Color.Black)
     }
 }
 
@@ -423,6 +505,7 @@ fun EmailInput(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputField(
     valueState: MutableState<String>,
@@ -433,17 +516,20 @@ fun InputField(
     OutlinedTextField(
         value = valueState.value,
         onValueChange = {valueState.value = it},
-        label = { Text(text = labelId)},
+        label = { Text(text = labelId, color = Color.Black)},
         singleLine = isSingleLine,
         modifier = Modifier
-            .padding(bottom = 10.dp, start = 10.dp, end= 10.dp),
+            .padding(bottom = 15.dp, start = 15.dp, end = 15.dp)
+            .fillMaxWidth(),
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType
+        ),
+        textStyle = TextStyle(color = Color.Black),
+        colors = TextFieldDefaults.textFieldColors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            cursorColor = Color.Black,
+            containerColor = Color(241, 248, 247)
         )
-
     )
 }
-
-
-
-

@@ -27,5 +27,7 @@ sealed class AppScreens (
         Icons.Outlined.CalendarMonth,
         "Eventos",
         "calendar_screen")
+    object UpdatePasswordScreen : AppScreens(null,null,"update_password_screen")
+    object ForgotPasswordScreen : AppScreens(null,null,"forgot_password_screen")
 
 }

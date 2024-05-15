@@ -1,6 +1,11 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
+
+
 }
 
 android {
@@ -93,4 +98,12 @@ dependencies {
     // dependencias a desugarizar
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+
+    //google analytics
+    implementation("com.google.firebase:firebase-analytics")
 }

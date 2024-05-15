@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "107311144081",
+    "project_id": "bestfriendtfg",
+    "storage_bucket": "bestfriendtfg.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107311144081:android:8a2bfa58da661d64eef330",
+        "android_client_info": {
+          "package_name": "com.example.tfg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1dAPmoQ4ZQFsvbCQcQNhtvYNSZkWoKN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

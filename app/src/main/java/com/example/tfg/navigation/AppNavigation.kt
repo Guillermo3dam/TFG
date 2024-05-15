@@ -1,26 +1,25 @@
 package com.example.tfg.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.tfg.screens.AccountScreen
-import com.example.tfg.screens.CalendarScreen
-import com.example.tfg.screens.DogsScreen
-import com.example.tfg.screens.HomeScreen
-import com.example.tfg.screens.LoginScreen
+import com.example.tfg.screens.*
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AppNavigation(
     navController: NavHostController
 ){
+
     Column {
         NavHost(navController = navController,
-            startDestination = AppScreens.LoginScreen.route,
+            startDestination = if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty())
+                AppScreens.LoginScreen.route
+            else
+                AppScreens.HomeScreen.route,
             modifier = Modifier.weight(1f)
         ) {
             composable(route = AppScreens.LoginScreen.route) {
@@ -37,6 +36,12 @@ fun AppNavigation(
             }
             composable(route = AppScreens.CalendarScreen.route) {
                 CalendarScreen(navController)
+            }
+            composable(route = AppScreens.UpdatePasswordScreen.route) {
+                UpdatePasswordScreen(navController)
+            }
+            composable(route = AppScreens.ForgotPasswordScreen.route) {
+                ForgotPasswordScreen(navController)
             }
         }
     }
