@@ -2,6 +2,7 @@ package com.example.tfg
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    Log.d("UserData", "---------------------------------")
                     MainScreen()
                 }
             }
@@ -42,7 +44,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-
         Scaffold(
             bottomBar = {
                 if (!currentRoute(navController).equals(LoginScreen.route)  && !currentRoute(navController).equals(AppScreens.UpdatePasswordScreen.route) )

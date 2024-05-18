@@ -1,14 +1,13 @@
 package com.example.tfg.models.viewmodels
 
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tfg.models.classes.User
-import com.example.tfg.navigation.AppScreens
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -70,18 +69,23 @@ class LoginViewModel : ViewModel(){
 
         // uso el data class
         val user = User(
-            userId = userId.toString(),
-            displayName = displayName.toString(),
-            avatarUrl = "",
-            email =  userEmail.toString()
+            id = userId.toString(),
+            name = displayName.toString()
         ).toMap()
-
-        FirebaseFirestore.getInstance().collection("users")
-            .add(user)
+        FirebaseFirestore.getInstance().collection("users").document(userEmail.toString())
+            .set(user)
             .addOnSuccessListener {
-                Log.d(TAG, "Creado ${it.id}")
+                Log.d(TAG, " usuario creado en la base de datos")
             }.addOnFailureListener{
                 Log.d(TAG, "Ocurrio un error ${it}")
             }
+    }
+
+    fun getCurrentUser(): FirebaseUser?{
+        return auth.currentUser
+    }
+
+    fun signOut() {
+        auth.signOut()
     }
 }

@@ -3,7 +3,6 @@ package com.example.tfg.screens
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
@@ -34,24 +32,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.tfg.dbutils.FirestoreManager
 import com.example.tfg.navigation.AppScreens
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AccountScreen(navController: NavController) {
-     SettingsScreen(navController)
+fun AccountScreen(
+    navController: NavController
+) {
+     SettingsScreen(
+         navController
+     )
 }
 
 @Composable
-fun SettingsScreen(navController: NavController) {
-    val context = LocalContext.current
+fun SettingsScreen(
+    navController: NavController,
+    viewModel: FirestoreManager = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
 
     var showDialogExit by remember { mutableStateOf(false ) }
     var showDialogDeleteAccount by remember { mutableStateOf(false ) }
@@ -90,9 +97,15 @@ fun SettingsScreen(navController: NavController) {
                     onDismiss =  {showDialogDeleteAccount = false} ,
                     onConfirm = {
                         val user = Firebase.auth.currentUser!!
+                        val auth : FirebaseAuth = Firebase.auth
+                        val userEmail = auth.currentUser?.email
+
                         user.delete()
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        viewModel.deleteUser(userEmail.toString())
+                                    }
                                     Log.d(TAG, "User account deleted.")
                                     navController.navigate(route = AppScreens.LoginScreen.route)
                                 }
