@@ -20,9 +20,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.tfg.R
 import com.example.tfg.models.viewmodels.UserViewModel
+import com.example.tfg.navigation.AppScreens
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -91,7 +93,7 @@ fun HomeScreen(
             }
             Spacer(modifier = Modifier.padding(10.dp))
             MyPets()
-            Recipes()
+            Recipes(navController)
         }
     }
 }
@@ -147,7 +149,9 @@ fun ItemPets(){
 }
 
 @Composable
-fun Recipes(){
+fun Recipes(
+    navController: NavController
+    ){
     Text(
         text = "¿Qué le apetece comer a tu peludo hoy?",
         fontWeight = FontWeight.Bold,
@@ -168,7 +172,7 @@ fun Recipes(){
             modifier = Modifier
                 .weight(1f)
                 .clickable {
-
+                    navController.navigate(route = AppScreens.NaturalRecipesScreen.route)
                 }
         ) {
             Column(

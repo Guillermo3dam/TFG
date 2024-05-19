@@ -29,5 +29,7 @@ sealed class AppScreens (
         "calendar_screen")
     object UpdatePasswordScreen : AppScreens(null,null,"update_password_screen")
     object ForgotPasswordScreen : AppScreens(null,null,"forgot_password_screen")
+    object NaturalRecipesScreen : AppScreens(null,null,"natural_recipes_screen")
+
 
 }

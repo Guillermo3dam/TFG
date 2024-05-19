@@ -56,42 +56,12 @@ import androidx.navigation.NavController
 import com.example.tfg.R
 import com.example.tfg.navigation.AppScreens
 import com.example.tfg.models.viewmodels.LoginViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+
 
 
 @Composable
 fun LoginScreen(navController: NavController) {
-
     nuevaLogin(navController)
-/*
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        //Cabecera(Modifier.align(Alignment.TopEnd))
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.padding(35.dp))
-            Imagen()
-            Spacer(modifier = Modifier.padding(50.dp))
-            CampoUsuario()
-            Spacer(modifier = Modifier.padding(8.dp))
-            CampoContraseña()
-            Spacer(modifier = Modifier.padding(10.dp))
-            TextoOlvidoContraseña()
-            Spacer(modifier = Modifier.padding(8.dp))
-            BotonLogin(navController)
-            Spacer(modifier = Modifier.padding(2.dp))
-            //DivisorOR()
-            Spacer(modifier = Modifier.padding(8.dp))
-            Spacer(modifier = Modifier.padding(65.dp))
-            TextoRegistro()
-        }
-    }*/
 }
 
 

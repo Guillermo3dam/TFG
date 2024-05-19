@@ -43,6 +43,9 @@ fun AppNavigation(
             composable(route = AppScreens.ForgotPasswordScreen.route) {
                 ForgotPasswordScreen(navController)
             }
+            composable(route = AppScreens.NaturalRecipesScreen.route) {
+                NaturalRecipesScreen(navController)
+            }
         }
     }
 

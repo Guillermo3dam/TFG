@@ -46,7 +46,9 @@ fun MainScreen() {
     val navController = rememberNavController()
         Scaffold(
             bottomBar = {
-                if (!currentRoute(navController).equals(LoginScreen.route)  && !currentRoute(navController).equals(AppScreens.UpdatePasswordScreen.route) )
+                if (currentRoute(navController).equals(AppScreens.HomeScreen.route) ||
+                    currentRoute(navController).equals(AppScreens.CalendarScreen.route) ||
+                    currentRoute(navController).equals(AppScreens.AccountScreen.route))
                     BottomNavigation(navController)
             }
         ) {
