@@ -55,7 +55,7 @@ fun SnackRecipesScreen(navController: NavHostController) {
                         Color.Transparent
                     ),
                     title = {
-                        Text(text = "Recetas naturales", color = Color.Black)
+                        Text(text = "Snacks naturales", color = Color.Black)
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
@@ -128,10 +128,10 @@ fun listSnackRecipes(): List<Recipe> {
             )
         ),
         Recipe(
-            R.drawable.ternepaza,
+            R.drawable.snack_refrescante,
             "Snack refrescante y saludable con patas de pollo, arándanos, mango y perejil",
             "Patas de pollo, arándanos. perejil, mango",
-            listOf("Patas de pollo 3 unidades", "ARándanos 1 pizca", "Mango 1 pizca", "Perejil 1 pizca"),
+            listOf("Patas de pollo 3 unidades", "Arándanos 1 pizca", "Mango 1 pizca", "Perejil 1 pizca"),
             listOf("Licuadora", "Colador", "Olla", "Cuchara"),
             listOf(
                 "Hervimos unas patas de pollo y cuando estén listas las trituramos con un poco del líquido donde los hemos cocido. Seguidamente pasamos la mezcla por un colador para separar los restos de hueso",

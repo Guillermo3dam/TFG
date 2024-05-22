@@ -1,27 +1,33 @@
 package com.example.tfg.models.classes
 
+import java.time.LocalDate
+
 data class Dog(
-    val userId : String,
-    val name : String,
-    val dates: MutableList<String>,
-    val birthday : String,
-    val male : Boolean,
-    val castrated : Boolean,
-    val size : String,
-    val behavior : String,
-    val ppp : Boolean
-    ){
-    fun toMap(): MutableMap<String,Any> {
+    val id: String = "",
+    val name: String = "",
+    val dates: MutableList<String> = mutableListOf(),
+    val birthday: String = "",
+    val male: Boolean = false,
+    val castrated: Boolean = false,
+    val ppp: Boolean = false
+) {
+    fun addDate(date: String) {
+        dates.add(date)
+    }
+
+    fun removeDate(date: String) {
+        dates.remove(date)
+    }
+
+    fun toMap(): MutableMap<String, Any?> {
         return mutableMapOf(
-            "user_id" to this.userId,
+            "id" to this.id,
             "name" to this.name,
-            "dates" to this.dates,
+            "dates" to if (dates.isNotEmpty()) dates else null,
             "birthday" to this.birthday,
             "male" to this.male,
             "castrated" to this.castrated,
-            "size" to this.size,
-            "behavior" to this.behavior,
-            "ppp" to this.ppp,
+            "ppp" to this.ppp
         )
     }
 }

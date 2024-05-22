@@ -67,7 +67,6 @@ class LoginViewModel : ViewModel(){
         val userId = auth.currentUser?.uid
         val userEmail = auth.currentUser?.email
 
-        // uso el data class
         val user = User(
             id = userId.toString(),
             name = displayName.toString()

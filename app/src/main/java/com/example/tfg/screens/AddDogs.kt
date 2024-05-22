@@ -1,5 +1,7 @@
 package com.example.tfg.screens
 
+import android.content.ContentValues
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.tfg.models.viewmodels.DogViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -59,7 +62,11 @@ fun AddDogScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDogForm(modifier: Modifier = Modifier) {
+fun AddDogForm(
+    modifier: Modifier = Modifier,
+    viewModel : DogViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+
+) {
 
     val name = rememberSaveable { mutableStateOf("") }
     val state = rememberDatePickerState()
@@ -77,8 +84,15 @@ fun AddDogForm(modifier: Modifier = Modifier) {
 
     // Mutable state for the selected date
     var birthdate by remember { mutableStateOf<LocalDate?>(null) }
+    var dateString = ""
+
 
     var allOptionsSelected by remember { mutableStateOf(false) }
+
+
+    var isMale by remember { mutableStateOf<Boolean?>(null) }
+    var isDogNeutered by remember { mutableStateOf<Boolean?>(null) }
+
 
 
     Column(
@@ -87,7 +101,7 @@ fun AddDogForm(modifier: Modifier = Modifier) {
             .padding(20.dp)
     ) {
         Text(
-            text = "¿Como se llama?",
+            text = "¿Como se llama?*",
             color = Color.Black,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -95,7 +109,7 @@ fun AddDogForm(modifier: Modifier = Modifier) {
         DogInputField(valueState = name, labelId = "Nombre del perro", keyboardType = KeyboardType.Text)
 
         Text(
-            text = "¿Cual es su fecha de nacimiento?",
+            text = "¿Cual es su fecha de nacimiento?*",
             color = Color.Black,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -121,7 +135,7 @@ fun AddDogForm(modifier: Modifier = Modifier) {
         }
 
         Text(
-            text = "¿Es macho o hembra?",
+            text = "¿Es macho o hembra?*",
             color = Color.Black,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -131,28 +145,32 @@ fun AddDogForm(modifier: Modifier = Modifier) {
             Modifier.padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            genderOptions.forEach { option ->
+            listOf(true to "Macho", false to "Hembra").forEach { (value, label) ->
                 Row(
                     Modifier.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = option == selectedGender.value,
-                        onClick = { selectedGender.value = option },
+                        selected = (isMale == value),
+                        onClick = {
+                            isMale = value
+                            selectedGender.value = label
+                            gender.value = label
+                        },
                         colors = RadioButtonDefaults.colors(selectedColor = Color.Black)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = option,
+                        text = label,
                         color = Color.Black,
-                        modifier = Modifier.width(80.dp) // Ancho fijo para los textos
+                        modifier = Modifier.width(80.dp)
                     )
                 }
             }
         }
 
         Text(
-            text = "¿Está castrado?",
+            text = "¿Está castrado?*",
             color = Color.Black,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -162,26 +180,29 @@ fun AddDogForm(modifier: Modifier = Modifier) {
             Modifier.padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            neuteredOptions.forEach { option ->
+            listOf(true to "Si", false to "No").forEach { (value, label) ->
                 Row(
                     Modifier.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = option == selectedNeutered.value,
-                        onClick = { selectedNeutered.value = option },
+                        selected = (isDogNeutered == value),
+                        onClick = {
+                            isDogNeutered = value
+                            selectedNeutered.value = label
+                            isNeutered = value
+                        },
                         colors = RadioButtonDefaults.colors(selectedColor = Color.Black)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = option,
+                        text = label,
                         color = Color.Black,
-                        modifier = Modifier.width(80.dp) // Ancho fijo para los textos
+                        modifier = Modifier.width(80.dp)
                     )
                 }
             }
         }
-
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -199,14 +220,25 @@ fun AddDogForm(modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
-        allOptionsSelected = selectedGender.value.isNotBlank() && selectedNeutered.value.isNotBlank() && name.value.isNotBlank() && birthdate!=null
+        allOptionsSelected = selectedGender.value.isNotBlank() && selectedNeutered.value.isNotBlank() && name.value.isNotBlank() && birthdate != null && isMale != null && isDogNeutered != null
 
         SubmitButton(textId = "Añadir perro", inputValido = allOptionsSelected) {
+            dateString = "${birthdate!!.dayOfMonth}/${birthdate!!.monthValue}/${birthdate!!.year}"
+            Log.d(ContentValues.TAG, "fecha string ${dateString}")
 
+            isMale?.let {
+                isDogNeutered?.let { it1 ->
+
+                    viewModel.addDog(
+                        name = name.value,
+                        birthday = dateString,
+                        isMale = it,
+                        isNeutered = it1,
+                        isPPP = isPPP
+                    )
+                }
+            }
         }
-
-
-
         if (showDialog) {
             DatePickerDialog(
                 colors = DatePickerDefaults.colors(
@@ -214,7 +246,8 @@ fun AddDogForm(modifier: Modifier = Modifier) {
                 ),
                 onDismissRequest = { showDialog = false },
                 confirmButton = {
-                    Button(        colors = ButtonDefaults.buttonColors(
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF57B262),
                         disabledContainerColor = Color(0xFF57B262)
                     ),
@@ -222,6 +255,7 @@ fun AddDogForm(modifier: Modifier = Modifier) {
                             birthdate = state.selectedDateMillis?.let {
                                 Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
                             }
+
                             showDialog = false
                         },
 
@@ -233,7 +267,9 @@ fun AddDogForm(modifier: Modifier = Modifier) {
                 },
                 dismissButton = {
                     OutlinedButton(
-                        onClick = { showDialog = false },
+                        onClick = {
+                            showDialog = false
+                                  },
 
                         border = BorderStroke(1.dp, Color.Transparent)
                     ) {
@@ -247,15 +283,15 @@ fun AddDogForm(modifier: Modifier = Modifier) {
                         containerColor = Color.White,
                         titleContentColor = Color.Black,
                         weekdayContentColor = Color.Black,
-                        subheadContentColor = Color.Black,
                         navigationContentColor = Color.Black,
-                        yearContentColor = Color.Black,
                         selectedDayContainerColor = Color(0xFF57B262),
                         disabledSelectedDayContainerColor = Color(0xFF57B262),
                         todayContentColor = Color(0xFF57B262),
                         todayDateBorderColor = Color(0xFF57B262),
                         dayContentColor = Color.Black,
                         currentYearContentColor = Color.Black,
+                        selectedDayContentColor = Color.Black,
+                        selectedYearContainerColor = Color.Black,
                         dateTextFieldColors = TextFieldDefaults.colors(
                             focusedContainerColor = Color(241, 248, 247), // color contenedor caja
                             unfocusedContainerColor =  Color(241, 248, 247),
