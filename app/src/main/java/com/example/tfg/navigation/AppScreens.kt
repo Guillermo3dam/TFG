@@ -13,7 +13,7 @@ sealed class AppScreens (
     val route : String)
 
 {
-    object DogsScreen : AppScreens(null, null, "dogs_screen")
+    object AddDogsScreen : AppScreens(null, null, "add_dogs_screen")
     object LoginScreen : AppScreens(null, null, "login_screen")
     object HomeScreen : AppScreens(
         Icons.Outlined.Home,
@@ -30,6 +30,7 @@ sealed class AppScreens (
     object UpdatePasswordScreen : AppScreens(null,null,"update_password_screen")
     object ForgotPasswordScreen : AppScreens(null,null,"forgot_password_screen")
     object NaturalRecipesScreen : AppScreens(null,null,"natural_recipes_screen")
+    object SnackRecipesScreen : AppScreens(null,null,"snack_recipes_screen")
 
 
 }

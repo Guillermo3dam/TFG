@@ -1,7 +1,6 @@
 package com.example.tfg.screens
 
 import android.app.Activity
-import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -58,14 +57,10 @@ import com.example.tfg.navigation.AppScreens
 import com.example.tfg.models.viewmodels.LoginViewModel
 
 
-
 @Composable
 fun LoginScreen(navController: NavController) {
     nuevaLogin(navController)
 }
-
-
-
 
 @Composable
 fun Cabecera(modificador: Modifier) {
@@ -327,11 +322,9 @@ fun nuevaLogin(
                         .padding(start = 5.dp),
                     color =  Color(0xFF57B262),
                 )
-
             }
         }
     }
-
 }
 
 @Composable

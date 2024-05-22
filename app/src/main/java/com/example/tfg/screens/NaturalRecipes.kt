@@ -72,7 +72,7 @@ fun NaturalRecipesScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .padding(top = 80.dp)
                 ) {
-                    items(listRecipes()) { recipe ->
+                    items(listNaturalRecipes()) { recipe ->
                         ItemRecipe(recipe = recipe) {
                             selectedRecipe = recipe
                             showBottomSheet = true
@@ -94,6 +94,8 @@ fun NaturalRecipesScreen(navController: NavHostController) {
         }
     }
 }
+
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -269,7 +271,7 @@ fun ItemRecipe(recipe: Recipe, onClick: () -> Unit) {
     }
 }
 
-fun listRecipes(): List<Recipe> {
+fun listNaturalRecipes(): List<Recipe> {
     return listOf(
         Recipe(
             R.drawable.cerpaza,

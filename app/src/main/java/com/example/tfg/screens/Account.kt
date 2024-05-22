@@ -49,13 +49,13 @@ import kotlinx.coroutines.launch
 fun AccountScreen(
     navController: NavController
 ) {
-     SettingsScreen(
+     Settings(
          navController
      )
 }
 
 @Composable
-fun SettingsScreen(
+fun Settings(
     navController: NavController,
     viewModel: FirestoreManager = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {

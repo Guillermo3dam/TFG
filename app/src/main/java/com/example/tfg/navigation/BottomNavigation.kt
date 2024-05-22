@@ -28,46 +28,48 @@ fun BottomNavigation(
         CalendarScreen,
         AccountScreen
     )
-    val selectedIcon = remember { mutableStateOf<ImageVector?>(null) }
-    val selectedTitle = remember { mutableStateOf<String?>(null) }
 
-            NavigationBar(
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = Color.White
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    menuItems.forEach { item ->
-                        val isSelected = currentRoute(navController) == item.route
-                        NavigationBarItem(
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = if (isSelected)  Color(0xFF57B262) else Color.Black,
-                                indicatorColor = Color.White
-                            ),
-                            selected = isSelected,
-                            onClick = {
-                                navController.navigate(item.route)
-                                selectedIcon.value = item.icon
-                                selectedTitle.value = item.title
-                            },
-                            icon = {
-                                item.icon?.let { icon ->
-                                    Icon(
-                                        imageVector = icon,
-                                        contentDescription = item.title,
-                                        tint = if (selectedIcon.value == icon)  Color(0xFF57B262) else Color.Black
-                                    )
-                                }
-                            },
-                            label = {
-                                item.title?.let { title ->
-                                    Text(text = title, color = if (title == selectedTitle.value)  Color(0xFF57B262) else Color.Black)
-                                }
-                            }
-                        )
+    val currentRoute = currentRoute(navController)
+
+    NavigationBar(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = Color.White
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            menuItems.forEach { item ->
+                val isSelected = currentRoute == item.route
+
+                NavigationBarItem(
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = if (isSelected)  Color(0xFF57B262) else Color.Black,
+                        indicatorColor = Color.White
+                    ),
+                    selected = isSelected,
+                    onClick = {
+                        navController.navigate(item.route)
+                    },
+                    icon = {
+                        item.icon?.let { icon ->
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = item.title,
+                                tint = if (isSelected)  Color(0xFF57B262) else Color.Black
+                            )
+                        }
+                    },
+                    label = {
+                        item.title?.let { title ->
+                            Text(
+                                text = title,
+                                color = if (isSelected)  Color(0xFF57B262) else Color.Black
+                            )
+                        }
                     }
-                }
+                )
             }
+        }
+    }
 }

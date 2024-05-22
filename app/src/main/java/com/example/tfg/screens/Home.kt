@@ -1,5 +1,6 @@
 package com.example.tfg.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.tfg.R
+import com.example.tfg.models.classes.Recipe
 import com.example.tfg.models.viewmodels.UserViewModel
 import com.example.tfg.navigation.AppScreens
 import com.google.firebase.auth.FirebaseAuth
@@ -43,6 +45,7 @@ fun HomeScreen(
     Box(modifier = Modifier
         .fillMaxSize()
         .background(Color.White)){
+
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier
@@ -92,7 +95,7 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.padding(10.dp))
-            MyPets()
+            MyPets(navController)
             Recipes(navController)
         }
     }
@@ -100,7 +103,9 @@ fun HomeScreen(
 
 
 @Composable
-fun MyPets(){
+fun MyPets(
+    navController: NavHostController
+){
     Row (
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -127,7 +132,7 @@ fun MyPets(){
         modifier = Modifier.fillMaxWidth()
         ){
         item {
-            ItemPets()
+            ItemPets(navController)
 
 
         }
@@ -136,14 +141,16 @@ fun MyPets(){
 }
 
 @Composable
-fun ItemPets(){
+fun ItemPets(
+    navController: NavHostController
+){
     Image(
         painter = painterResource(id = R.drawable.add_dog),
         contentDescription = null,
         modifier = Modifier
             .size(120.dp)
             .clickable {
-
+                navController.navigate(route = AppScreens.AddDogsScreen.route)
             }
     )
 }
@@ -206,7 +213,7 @@ fun Recipes(
             modifier = Modifier
                 .weight(1f)
                 .clickable {
-
+                    navController.navigate(route = AppScreens.SnackRecipesScreen.route)
                 }
         ) {
             Column(
@@ -232,3 +239,4 @@ fun Recipes(
         }
     }
 }
+
