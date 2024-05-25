@@ -226,7 +226,7 @@ fun ElevatedCardContent(text: String) {
             color = Color.Black,
             fontSize = 12.sp,
             overflow = TextOverflow.Ellipsis,
-            maxLines = 4
+            maxLines = 3
         )
     }
 }
@@ -239,8 +239,8 @@ fun ItemRecipe(recipe: Recipe, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .padding(10.dp)
-            .height(360.dp)
-            .clickable { onClick() },
+            .height(360.dp),
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
             Image(

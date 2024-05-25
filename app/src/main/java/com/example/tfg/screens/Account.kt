@@ -72,21 +72,21 @@ fun Settings(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            SettingsElevatedCard(
+            ItemSettings(
                 option = "Editar perfil",
                 icon = Icons.Outlined.AccountCircle
             ) {
                 // añadir ruta a nueva ventana
             }
 
-            SettingsElevatedCard(
+            ItemSettings(
                 option = "Cambiar contraseña",
                 icon = Icons.Outlined.Password
             ) {
                 navController.navigate(route = AppScreens.UpdatePasswordScreen.route)
             }
 
-            SettingsElevatedCard(
+            ItemSettings(
                 option = "Eliminar cuenta",
                 icon = Icons.Outlined.Delete
             ) {
@@ -116,7 +116,7 @@ fun Settings(
                     color = Color.Red
                 )
             }
-            SettingsElevatedCard(
+            ItemSettings(
                 option = "Salir",
                 icon = Icons.AutoMirrored.Outlined.Logout
             ) {
@@ -187,13 +187,11 @@ fun ExitDialog(
 }
 
 @Composable
-fun SettingsElevatedCard(option: String, icon: ImageVector, onClick: () -> Unit) {
+fun ItemSettings(option: String, icon: ImageVector, onClick: () -> Unit) {
     ElevatedCard(
-        colors = CardDefaults.cardColors(
-            containerColor = Color(241, 248, 247)
-        ), elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
-        ), modifier = Modifier
+        colors = CardDefaults.cardColors(containerColor = Color(241, 248, 247)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        modifier = Modifier
             .fillMaxWidth()
             .padding(start = 15.dp, bottom = 7.dp, end = 15.dp)
             .height(60.dp),

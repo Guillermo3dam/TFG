@@ -1,6 +1,5 @@
 package com.example.tfg.models.classes
 
-import java.time.LocalDate
 
 data class Dog(
     val id: String = "",
@@ -10,7 +9,9 @@ data class Dog(
     val male: Boolean = false,
     val castrated: Boolean = false,
     val ppp: Boolean = false
-) {
+)
+
+{
     fun addDate(date: String) {
         dates.add(date)
     }

@@ -5,6 +5,8 @@ plugins {
     // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
 
+    // implementar parcelable
+    id("kotlin-parcelize")
 
 }
 
@@ -106,4 +108,8 @@ dependencies {
 
     //google analytics
     implementation("com.google.firebase:firebase-analytics")
+
+    //libreria para deserializar
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
 }

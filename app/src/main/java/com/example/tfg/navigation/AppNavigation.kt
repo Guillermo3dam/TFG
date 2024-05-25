@@ -1,5 +1,6 @@
 package com.example.tfg.navigation
 
+import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
@@ -7,8 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.tfg.models.classes.Dog
 import com.example.tfg.screens.*
 import com.google.firebase.auth.FirebaseAuth
 
@@ -58,8 +61,13 @@ fun AppNavigation(
             composable(route = AppScreens.SnackRecipesScreen.route) {
                 SnackRecipesScreen(navController)
             }
+            composable(route = AppScreens.MyDogsScreen.route) {
+                MyDogsScreen(navController)
+            }
+            composable(route = AppScreens.SelectedDogScreen.route + "/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id") ?: ""
+                SelectedDogScreen(navController = navController, id = id)
+            }
         }
     }
-
 }
-

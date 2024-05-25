@@ -22,22 +22,31 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.tfg.models.classes.Dog
 import com.example.tfg.models.viewmodels.DogViewModel
-import com.example.tfg.navigation.AppScreens
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDogScreen(
-    navController: NavController
+fun SelectedDogScreen(
+    id : String,
+    navController: NavController,
+    viewModel: DogViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
+
+    var dog by remember { mutableStateOf<Dog?>(null) }
+    LaunchedEffect(id) {
+        viewModel.getDogById(id) { foundDog ->
+            dog = foundDog
+        }
+    }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -72,51 +81,47 @@ fun AddDogScreen(
                 }
             }
         ) {
-            AddDogForm(
-                Modifier.padding(it),
-                snackbarHostState = snackbarHostState,
-                navController = navController
-            )
+            if (dog != null) {
+                Log.d("SelectedDogScreen", "Displaying details for dog: ${dog?.name}")
+                MyDogForm(
+                    Modifier.padding(it),
+                    snackbarHostState = snackbarHostState,
+                    navController = navController,
+                    dog = dog!!
+                )
+            } else {
+                Log.d("SelectedDogScreen", "No dog selected or loading...")
+                Text(text = "Cargando detalles del perro...")
+            }
+
         }
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDogForm(
+fun MyDogForm(
     modifier: Modifier = Modifier,
-    viewModel : DogViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: DogViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     snackbarHostState: SnackbarHostState,
-    navController: NavController
+    navController: NavController,
+    dog: Dog
 ) {
-
-    val name = rememberSaveable { mutableStateOf("") }
+    val name = rememberSaveable { mutableStateOf(dog.name) }
     val state = rememberDatePickerState()
     var showDialog by remember { mutableStateOf(false) }
-    val gender = rememberSaveable { mutableStateOf("") }
 
-    var isNeutered by remember { mutableStateOf(false) }
-    var isPPP by remember { mutableStateOf(false) }
+    var isMale by rememberSaveable { mutableStateOf(dog.male) }
+    var isNeutered by rememberSaveable { mutableStateOf(dog.castrated) }
+    var isPPP by rememberSaveable { mutableStateOf(dog.ppp) }
 
-    val genderOptions = listOf("Macho", "Hembra")
-    val selectedGender = rememberSaveable { mutableStateOf(genderOptions[0]) }
-
-    val neuteredOptions = listOf("Si", "No")
-    val selectedNeutered = rememberSaveable { mutableStateOf(neuteredOptions[0]) }
-
-    // Mutable state for the selected date
-    var birthdate by remember { mutableStateOf<LocalDate?>(null) }
+    var birthdate by rememberSaveable { mutableStateOf(formatDate(dog.birthday)) }
     var dateString = ""
 
-
-    var allOptionsSelected by remember { mutableStateOf(false) }
-
-
-    var isMale by remember { mutableStateOf<Boolean?>(null) }
-    var isDogNeutered by remember { mutableStateOf<Boolean?>(null) }
+    var allOptionsSelected by remember { mutableStateOf(true) }
 
     val scope = rememberCoroutineScope()
-
 
     Column(
         modifier = modifier
@@ -124,19 +129,20 @@ fun AddDogForm(
             .padding(20.dp)
     ) {
         Text(
-            text = "¿Como se llama?*",
+            text = "¿Cómo se llama?*",
             color = Color.Black,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 8.dp)
         )
-        DogInputField(valueState = name, labelId = "Nombre del perro", keyboardType = KeyboardType.Text)
+        DogInputField1(valueState = name, labelId = "Nombre del perro", keyboardType = KeyboardType.Text)
 
         Text(
-            text = "¿Cual es su fecha de nacimiento?*",
+            text = "¿Cuál es su fecha de nacimiento?*",
             color = Color.Black,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 8.dp)
         )
+        Log.d(ContentValues.TAG, "fecha string $birthdate")
 
         OutlinedButton(
             onClick = { showDialog = true },
@@ -152,11 +158,7 @@ fun AddDogForm(
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = if (birthdate != null) {
-                        "${birthdate!!.dayOfMonth}/${birthdate!!.monthValue}/${birthdate!!.year}"
-                    } else {
-                        "Seleccionar la fecha"
-                    },
+                    text = birthdate.ifEmpty { "Seleccionar la fecha" },
                     color = Color.Black,
                     textAlign = TextAlign.Left,
                     fontSize = 15.sp,
@@ -164,8 +166,6 @@ fun AddDogForm(
                 )
             }
         }
-
-
 
         Text(
             text = "¿Es macho o hembra?*",
@@ -185,11 +185,7 @@ fun AddDogForm(
                 ) {
                     RadioButton(
                         selected = (isMale == value),
-                        onClick = {
-                            isMale = value
-                            selectedGender.value = label
-                            gender.value = label
-                        },
+                        onClick = { isMale = value },
                         colors = RadioButtonDefaults.colors(selectedColor = Color.Black)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -213,18 +209,14 @@ fun AddDogForm(
             Modifier.padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            listOf(true to "Si", false to "No").forEach { (value, label) ->
+            listOf(true to "Sí", false to "No").forEach { (value, label) ->
                 Row(
                     Modifier.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = (isDogNeutered == value),
-                        onClick = {
-                            isDogNeutered = value
-                            selectedNeutered.value = label
-                            isNeutered = value
-                        },
+                        selected = (isNeutered == value),
+                        onClick = { isNeutered = value },
                         colors = RadioButtonDefaults.colors(selectedColor = Color.Black)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -236,6 +228,7 @@ fun AddDogForm(
                 }
             }
         }
+
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -253,41 +246,30 @@ fun AddDogForm(
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
-        allOptionsSelected = selectedGender.value.isNotBlank() && selectedNeutered.value.isNotBlank() && name.value.isNotBlank() && birthdate != null && isMale != null && isDogNeutered != null
 
-        SubmitButton(textId = "Añadir perro", inputValido = allOptionsSelected) {
-            dateString = "${birthdate!!.dayOfMonth}/${birthdate!!.monthValue}/${birthdate!!.year}"
-            Log.d(ContentValues.TAG, "fecha string ${dateString}")
+        allOptionsSelected = name.value.isNotBlank() && birthdate.isNotBlank()
 
-            isMale?.let {
-                isDogNeutered?.let { it1 ->
+        SubmitButton(textId = "Actualizar perro", inputValido = allOptionsSelected) {
+            dateString = birthdate
+            Log.d(ContentValues.TAG, "fecha string $dateString")
 
-                    viewModel.addDog(
-                        name = name.value,
-                        birthday = dateString,
-                        isMale = it,
-                        isNeutered = it1,
-                        isPPP = isPPP
-                    )
-                }
-            }
-            name.value = ""
-            birthdate = null
-            isMale = null
-            isDogNeutered = null
-            isNeutered = false
-            isPPP = false
-            selectedGender.value = genderOptions[0]
-            selectedNeutered.value = neuteredOptions[0]
-            
+            viewModel.updateDog(
+                dog.id,
+                name = name.value,
+                birthday = dateString,
+                isMale = isMale,
+                isNeutered = isNeutered,
+                isPPP = isPPP
+            )
+
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    "Perro añadido",
+                    "Perro actualizado",
                     duration = SnackbarDuration.Short
                 )
             }
-
         }
+
         if (showDialog) {
             DatePickerDialog(
                 colors = DatePickerDefaults.colors(
@@ -297,82 +279,52 @@ fun AddDogForm(
                 confirmButton = {
                     Button(
                         colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF57B262),
-                        disabledContainerColor = Color(0xFF57B262)
-                    ),
+                            containerColor = Color(0xFF57B262),
+                            disabledContainerColor = Color(0xFF57B262)
+                        ),
                         onClick = {
                             birthdate = state.selectedDateMillis?.let {
-                                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
-                            }
-
+                                formatDate(Instant.ofEpochMilli(it)
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+                                    .toString())
+                            }.orEmpty()
                             showDialog = false
                         },
-
-                        border = BorderStroke(1.dp, Color.Transparent,
-                        )
+                        border = BorderStroke(1.dp, Color.Transparent)
                     ) {
                         Text(text = "Confirmar", color = Color.Black)
                     }
                 },
                 dismissButton = {
                     OutlinedButton(
-                        onClick = {
-                            showDialog = false
-                                  },
-
+                        onClick = { showDialog = false },
                         border = BorderStroke(1.dp, Color.Transparent)
                     ) {
                         Text(text = "Cancelar", color = Color.Black)
                     }
                 }
             ) {
-
-
                 MyDatePicker(state)
-
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyDatePicker(
-    state : DatePickerState
-) {
-    DatePicker(state = state,
-        colors = DatePickerDefaults.colors(
-            containerColor = Color.White,
-            titleContentColor = Color.Black,
-            weekdayContentColor = Color.Black,
-            navigationContentColor = Color.Black,
-            selectedDayContainerColor = Color(0xFF57B262),
-            disabledSelectedDayContainerColor = Color(0xFF57B262),
-            todayContentColor = Color(0xFF57B262),
-            todayDateBorderColor = Color(0xFF57B262),
-            dayContentColor = Color.Black,
-            currentYearContentColor = Color.Black,
-            selectedDayContentColor = Color.Black,
-            selectedYearContainerColor = Color.Black,
-            dateTextFieldColors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(241, 248, 247), // color contenedor caja
-                unfocusedContainerColor =  Color(241, 248, 247),
-                unfocusedTextColor = Color.Black, // color del texto
-                focusedTextColor = Color.Black,
-                disabledTextColor = Color.Black,
-                focusedIndicatorColor = Color(241, 248, 247),
-                unfocusedIndicatorColor = Color(241, 248, 247),
-                focusedLabelColor = Color.Black,
-                unfocusedLabelColor = Color.Black
-            )
-        )
-    )
+fun formatDate(dateString: String): String {
+    val parts = dateString.split("-")
+    return if (parts.size == 3) {
+        "${parts[2]}/${parts[1]}/${parts[0]}"
+    } else {
+        dateString
+    }
 }
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DogInputField(
+fun DogInputField1(
     valueState: MutableState<String>,
     labelId: String,
     keyboardType: KeyboardType,
@@ -381,11 +333,13 @@ fun DogInputField(
     TextField(
         value = valueState.value,
         onValueChange = { valueState.value = it },
-        placeholder = { Text(
-            text = labelId,
-            color = Color.Black,
-            modifier = Modifier.padding(start = 6.dp)
-        ) },
+        placeholder = {
+            Text(
+                text = labelId,
+                color = Color.Black,
+                modifier = Modifier.padding(start = 6.dp)
+            )
+        },
         singleLine = isSingleLine,
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),

@@ -123,7 +123,7 @@ fun MyPets(
             modifier = Modifier
                 .padding(end = 10.dp)
                 .clickable {
-
+                    navController.navigate(route = AppScreens.MyDogsScreen.route)
                 }
         )
     }

@@ -6,6 +6,9 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.tfg.models.classes.Dog
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 
 sealed class AppScreens (
     val icon : ImageVector?,
@@ -31,6 +34,7 @@ sealed class AppScreens (
     object ForgotPasswordScreen : AppScreens(null,null,"forgot_password_screen")
     object NaturalRecipesScreen : AppScreens(null,null,"natural_recipes_screen")
     object SnackRecipesScreen : AppScreens(null,null,"snack_recipes_screen")
-
+    object MyDogsScreen : AppScreens(null,null,"my_dogs_screen")
+    object SelectedDogScreen : AppScreens(null,null,"selected_dog_screen")
 
 }

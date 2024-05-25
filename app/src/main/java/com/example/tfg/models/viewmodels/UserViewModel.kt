@@ -27,6 +27,7 @@ class UserViewModel : ViewModel() {
             getUserData()
         }
     }
+
     private fun getUserData() {
         val auth: FirebaseAuth = Firebase.auth
         val userEmail = auth.currentUser?.email.toString()

@@ -74,10 +74,10 @@ fun Cabecera(modificador: Modifier) {
 @Composable
 fun Logo(){
         Image(
-            painter = painterResource(id = R.drawable.boxer),
+            painter = painterResource(id = R.drawable.logo_collar),
             contentDescription = "logo",
             modifier = Modifier
-                .size(200.dp, 85.dp)
+                .size(200.dp)
         )
 }
 
@@ -252,7 +252,6 @@ fun nuevaLogin(
     navController: NavController,
     viewModel: LoginViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     ){
-
     val showLoginForm = rememberSaveable {
         mutableStateOf(true)
     }
@@ -263,10 +262,9 @@ fun nuevaLogin(
             .background(Color.White)){
 
         Column(horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(top = 50.dp)) {
+            verticalArrangement = Arrangement.Center) {
             Logo()
-            Spacer(modifier = Modifier.padding(top = 70.dp ))
+            Spacer(modifier = Modifier.padding(top = 18.dp ))
             if(showLoginForm.value){
                 Text(text = "Inicia sesion",
                     color = Color.Black)
@@ -297,7 +295,7 @@ fun nuevaLogin(
                     }
                 }
             }
-            Spacer(modifier = Modifier.padding(top = 158.dp))
+            Spacer(modifier = Modifier.padding(top = 140.dp))
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
