@@ -32,7 +32,7 @@ class DogViewModel : ViewModel() {
         userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
                 val user = documentSnapshot.toObject(User::class.java)
-                user?.myDogs?.let { dogs ->
+                user?.dogs?.let { dogs ->
                     val updatedDogsList = dogs.map { dog ->
                         if (dog.id == id) {
                             dog.copy(
@@ -46,7 +46,7 @@ class DogViewModel : ViewModel() {
                             dog
                         }
                     }
-                    userDocumentRef.update("myDogs", updatedDogsList)
+                    userDocumentRef.update("dogs", updatedDogsList)
                         .addOnSuccessListener {
                             Log.d("DogViewModel", "Dog updated successfully")
                             // Optionally, you can call getDogs() to refresh the dog list in the ViewModel
@@ -77,7 +77,7 @@ class DogViewModel : ViewModel() {
             userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
                     val user = documentSnapshot.toObject(User::class.java)
-                    user?.myDogs?.let { dogs ->
+                    user?.dogs?.let { dogs ->
                         val dog = dogs.find { it.id == dogId }
                         if (dog != null) {
                             callback(dog)
@@ -109,9 +109,9 @@ class DogViewModel : ViewModel() {
             userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
                     val user = documentSnapshot.toObject(User::class.java)
-                    user?.myDogs?.let { dogs ->
+                    user?.dogs?.let { dogs ->
                         val updatedDogsList = dogs.filter { it.id != dogId }
-                        userDocumentRef.update("myDogs", updatedDogsList)
+                        userDocumentRef.update("dogs", updatedDogsList)
                             .addOnSuccessListener {
                                 Log.d(ContentValues.TAG, "Perro eliminado correctamente")
                                 getDogs()  // Actualizar la lista de perros
@@ -137,6 +137,7 @@ class DogViewModel : ViewModel() {
 
     fun getDogs() {
         if (auth.currentUser != null) {
+            state.value = DogState.Loading
             viewModelScope.launch {
                 getDogData()
             }
@@ -146,37 +147,37 @@ class DogViewModel : ViewModel() {
     }
 
     private fun getDogData() {
-        state.value = DogState.Loading
-
         db.collection("users").document(userEmail)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val user = document.toObject(User::class.java)
                     val firestoreDog = mutableListOf<Dog>()
-                    user?.myDogs?.let { dogs ->
+                    user?.dogs?.let { dogs ->
                         for (dog in dogs) {
-                            Log.d(ContentValues.TAG, "Dog ID: ${dog.id}")
+                            Log.d("DogViewModel", "Dog ID: ${dog.id}")
                             firestoreDog.add(dog)
                         }
                         doglist = firestoreDog
-                        state.value = DogState.Success(doglist)
+                        state.value = if (firestoreDog.isEmpty()) DogState.Empty else DogState.Success(doglist)
                     } ?: run {
                         state.value = DogState.Empty
                     }
                 } else {
-                    Log.d(ContentValues.TAG, "El documento del usuario no existe.")
+                    Log.d("DogViewModel", "El documento del usuario no existe.")
                     state.value = DogState.Empty
                 }
             }
             .addOnFailureListener { exception ->
-                Log.d(ContentValues.TAG, "Error obteniendo datos de usuario: ${exception.message}")
+                Log.d("DogViewModel", "Error obteniendo datos de usuario: ${exception.message}")
                 state.value = DogState.Failure("Error al obtener datos del usuario: ${exception.message}")
             }
     }
 
 
-    fun addDog(
+
+
+fun addDog(
         name: String,
         birthday: String,
         isMale: Boolean,
@@ -195,11 +196,12 @@ class DogViewModel : ViewModel() {
 
         val userDocumentRef = db.collection("users").document(userEmail)
 
+
         userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
-                val currentDogsList = documentSnapshot.toObject(User::class.java)?.myDogs ?: mutableListOf()
+                val currentDogsList = documentSnapshot.toObject(User::class.java)?.dogs ?: mutableListOf()
                 currentDogsList.add(dog)
-                userDocumentRef.update("myDogs", currentDogsList)
+                userDocumentRef.update("dogs", currentDogsList)
                     .addOnSuccessListener {
                         Log.d(ContentValues.TAG, "Perro añadido correctamente a la lista de perros del usuario")
                     }

@@ -1,15 +1,13 @@
 package com.example.tfg.screens
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
+import android.app.TimePickerDialog
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -25,14 +23,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.tfg.models.classes.Dog
+import com.example.tfg.models.classes.Reminder
 import com.example.tfg.models.viewmodels.DogState
+import com.example.tfg.models.viewmodels.ReminderState
 import com.example.tfg.models.viewmodels.DogViewModel
-import com.example.tfg.navigation.AppScreens
+import com.example.tfg.models.viewmodels.ReminderViewModel
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneId
+import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,16 +43,27 @@ import java.time.ZoneId
 fun AddReminderScreen(
     date: String,
     navController: NavController,
-    viewModel: DogViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    dogViewModel: DogViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    reminderViewModel: ReminderViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Log.d("addreminderscreen", "Fecha que llega: $date")
 
     var dog by remember { mutableStateOf<Dog?>(null) }
 
+    var showDialog by remember { mutableStateOf(false) }
+
+    var finalTime by remember { mutableStateOf<String?>(null) }
+    val state = rememberTimePickerState(is24Hour = true)
+    val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+    val snackState = remember { SnackbarHostState() }
+    val snackScope = rememberCoroutineScope()
+
+
     LaunchedEffect(Unit) {
-        viewModel.getDogs()
+        dogViewModel.getDogs()
     }
 
     Box(
@@ -86,20 +100,22 @@ fun AddReminderScreen(
                 }
             },
             content = {
-                Column(modifier = Modifier.padding(it)) { // Agregamos un Column en lugar de un Spacer
+                Column(modifier = Modifier.padding(it)) {
                     var selectedDogId by remember { mutableStateOf<String?>(null) }
                     val description = rememberSaveable { mutableStateOf("") }
 
-                    when (val result = viewModel.state.value) {
+                    when (val result = dogViewModel.state.value) {
                         is DogState.Success -> {
-                            Column (
-                                modifier = Modifier.padding(15.dp).fillMaxSize(),
+                            Column(
+                                modifier = Modifier
+                                    .padding(15.dp)
+                                    .fillMaxSize(),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ){
+                            ) {
                                 Text(
-                                        text = "Selecciona un perro",
-                                        color = Color.Black
-                                    )
+                                    text = "Selecciona un perro",
+                                    color = Color.Black
+                                )
 
                                 LazyRow(
                                     modifier = Modifier.fillMaxWidth()
@@ -127,6 +143,61 @@ fun AddReminderScreen(
 
                                 DateText(date, true)
 
+                                Text(
+                                    text = "Seleciona la hora",
+                                    color = Color.Black
+                                )
+
+
+
+                                if (showDialog) {
+                                    TimePickerDialog(
+                                        onCancel = { showDialog = false },
+                                        onConfirm = {
+                                            val cal = java.util.Calendar.getInstance()
+                                            cal.set(java.util.Calendar.HOUR_OF_DAY, state.hour)
+                                            cal.set(java.util.Calendar.MINUTE, state.minute)
+                                            cal.isLenient = false
+                                            finalTime = formatter.format(cal.time)
+                                            snackScope.launch {
+                                                snackState.showSnackbar("Entered time: ${finalTime}")
+                                            }
+                                            showDialog = false
+                                        },
+                                    ) {
+                                        TimeInput(state = state)
+                                    }
+                                }
+
+
+                                OutlinedButton(
+                                    onClick = { showDialog = true },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(55.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = Color(241, 248, 247),
+                                        contentColor = Color.Black
+                                    ),
+                                    border = BorderStroke(1.dp, Color.Transparent),
+                                    shape = RectangleShape
+                                ) {
+                                    Box(modifier = Modifier.fillMaxWidth()) {
+                                        (if (finalTime != null) {
+                                            finalTime
+                                        } else {
+                                            "Selecciona la hora"
+                                        })?.let { it1 ->
+                                            Text(
+                                                text = it1,
+                                                color = Color.Black,
+                                                textAlign = TextAlign.Left,
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.Normal
+                                            )
+                                        }
+                                    }
+                                }
 
                                 Text(
                                     text = "Denominación del acontecimiento",
@@ -138,8 +209,34 @@ fun AddReminderScreen(
                                     labelId = "Añade una descripción",
                                     keyboardType = KeyboardType.Text
                                 )
+
+                                val reminder = selectedDogId?.let {
+                                    finalTime?.let { it1 ->
+                                        Reminder(
+                                            dogId = it,
+                                            description = description.value,
+                                            date = date,
+                                            hour = it1
+                                        )
+                                    }
+                                }
+
+                                SubmitButton(
+                                    textId = "Añadir recordatorio",
+                                    inputValido = description.value.isNotBlank() && selectedDogId != null && finalTime?.isNotBlank() == true
+                                ) {
+                                    if (reminder != null) {
+                                        reminderViewModel.addReminderToCurrentUser(reminder)
+                                        description.value = ""
+                                        selectedDogId = null
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar("Has añadido un recordatorio")
+                                        }
+                                    }
+                                }
                             }
                         }
+
                         is DogState.Failure -> {
                             Box(
                                 modifier = Modifier
@@ -148,9 +245,10 @@ fun AddReminderScreen(
                                     .background(Color.White)
                             ) {
                                 Log.d("addreminderscreen", "Fail")
-                                Text(text = "result.message")
+                                Text(text = result.message)
                             }
                         }
+
                         is DogState.Loading -> {
                             Box(
                                 modifier = Modifier
@@ -164,6 +262,7 @@ fun AddReminderScreen(
                                 }
                             }
                         }
+
                         is DogState.Empty -> {
                             Box(
                                 modifier = Modifier
@@ -182,18 +281,16 @@ fun AddReminderScreen(
     }
 }
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateText(
     date: String,
-    readOnly : Boolean
+    readOnly: Boolean
 ) {
     TextField(
         readOnly = readOnly,
         value = date,
-        onValueChange = { /* lógica para actualizar el valor */ },
+        onValueChange = {  },
         modifier = Modifier.fillMaxWidth(),
         textStyle = TextStyle(color = Color.Black),
         colors = TextFieldDefaults.textFieldColors(
@@ -203,4 +300,59 @@ fun DateText(
             containerColor = Color(241, 248, 247)
         )
     )
+}
+
+
+@Composable
+fun TimePickerDialog(
+    title: String = "Select Time",
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    toggle: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onCancel,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .width(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min)
+                .background(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surface
+                ),
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                content()
+                Row(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth()
+                ) {
+                    toggle()
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(onClick = onCancel) {
+                        Text("Cancel")
+                    }
+                    TextButton(onClick = onConfirm) {
+                        Text("OK")
+                    }
+                }
+            }
+        }
+    }
 }

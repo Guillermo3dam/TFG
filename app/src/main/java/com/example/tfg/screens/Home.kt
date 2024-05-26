@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CardDefaults
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +48,8 @@ fun HomeScreen(
         .fillMaxSize()
         .background(Color.White)){
 
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -62,6 +65,7 @@ fun HomeScreen(
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxSize()
+                            .clip(CircleShape)
                             .clickable {
 
                             }
@@ -128,8 +132,7 @@ fun MyPets(
         )
     }
     LazyRow (
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        verticalAlignment = Alignment.CenterVertically
         ){
         item {
             ItemPets(navController)
@@ -143,16 +146,24 @@ fun MyPets(
 @Composable
 fun ItemPets(
     navController: NavHostController
-){
-    Image(
-        painter = painterResource(id = R.drawable.add_dog),
-        contentDescription = null,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(120.dp)
+            .clip(CircleShape)
             .clickable {
                 navController.navigate(route = AppScreens.AddDogsScreen.route)
             }
-    )
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.add_friend),
+            contentDescription = null,
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+        )
+    }
 }
 
 @Composable
@@ -160,7 +171,7 @@ fun Recipes(
     navController: NavController
     ){
     Text(
-        text = "¿Qué le apetece comer a tu peludo hoy?",
+        text = "¿Qué le apetece comer a tu perro hoy?",
         fontWeight = FontWeight.Bold,
         color = Color.Black)
     Row(

@@ -23,14 +23,12 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,6 +41,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.tfg.models.classes.Dog
 import com.example.tfg.models.viewmodels.DogState
+import com.example.tfg.models.viewmodels.ReminderState
 import com.example.tfg.models.viewmodels.DogViewModel
 import com.example.tfg.navigation.AppNavigation
 import com.example.tfg.navigation.AppScreens
@@ -78,7 +77,7 @@ fun MyDogsScreen(
                         Color.Transparent
                     ),
                     title = {
-                        Text(text = "Mis peludos", color = Color.Black)
+                        Text(text = "Mis perros", color = Color.Black)
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
@@ -117,34 +116,46 @@ fun MyDogsScreen(
 
                             }
                         }
-
-
-
                     }
                     is DogState.Failure -> {
-                        Box(modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 80.dp)
-                            .background(Color.White)) {
-                            Text(text = result.message)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White)) {
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally
+
+                            ) {
+                                Text(text = result.message)
+                            }
                         }
                     }
                     is DogState.Loading -> {
-                        Box(modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 80.dp)
-                            .background(Color.White)) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(text = "Cargando datos..")
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White)) {
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally
+
+                            ) {
+                                Text(text = "Cargando..")
                             }
                         }
                     }
                     is DogState.Empty -> {
-                        Box(modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 80.dp)
-                            .background(Color.White)) {
-                            Text(text = "No se han encontrado perros")
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White)) {
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(text = "No se han encontrado perros")
+                            }
                         }
                     }
                 }

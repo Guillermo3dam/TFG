@@ -1,36 +1,29 @@
 package com.example.tfg.screens
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.tfg.models.classes.Dog
+import com.example.tfg.models.classes.Recipe
+import com.example.tfg.models.classes.Reminder
+import com.example.tfg.models.viewmodels.ReminderViewModel
+import com.example.tfg.models.viewmodels.ReminderState
+import com.example.tfg.models.viewmodels.DogViewModel
+import com.example.tfg.models.viewmodels.DogState
 import com.example.tfg.navigation.AppScreens
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -38,17 +31,25 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Calendar1Screen(navController: NavController) {
+fun Calendar1Screen(
+    navController: NavController,
+    reminderViewModel: ReminderViewModel = viewModel(),
+    dogViewModel: DogViewModel = viewModel()
+) {
     val state = rememberDatePickerState()
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-
-
     var date by remember { mutableStateOf<String?>(null) }
-    // Observa cambios en el estado del DatePicker
+    var showNoDogsAlert by remember { mutableStateOf(false) }
+    var showNoDateAlert by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        reminderViewModel.getReminders()
+        dogViewModel.getDogs()
+    }
+
     LaunchedEffect(state.selectedDateMillis) {
         val millis = state.selectedDateMillis
         if (millis != null) {
@@ -61,18 +62,36 @@ fun Calendar1Screen(navController: NavController) {
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
+                containerColor = Color(0xFF57B262),
                 onClick = {
-                    val encodedDate = URLEncoder.encode(date, StandardCharsets.UTF_8.toString())
-                    navController.navigate(AppScreens.AddReminderScreen.route + "/$encodedDate")
+                    val dogState = dogViewModel.state.value
+                    Log.d("Calendar1Screen", "DogState: $dogState, Date: $date")
+
+                    when (dogState) {
+                        is DogState.Success -> {
+                            if (date == null) {
+                                showNoDateAlert = true
+                            } else {
+                                val encodedDate = URLEncoder.encode(date, StandardCharsets.UTF_8.toString())
+                                navController.navigate(AppScreens.AddReminderScreen.route + "/$encodedDate")
+                            }
+                        }
+                        is DogState.Empty, is DogState.Failure -> {
+                            showNoDogsAlert = true
+                        }
+                        is DogState.Loading -> {
+                            // Optional: Handle loading state if necessary
+                        }
+                    }
                 },
                 shape = CircleShape,
                 modifier = Modifier.padding(bottom = 72.dp),
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add", tint = Color.White)
             }
         },
         content = { paddingValues ->
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.White)
@@ -82,7 +101,7 @@ fun Calendar1Screen(navController: NavController) {
                     state = state,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(500.dp),
+                        .padding(bottom = 16.dp),  // Reducir el padding inferior del calendario
                     title = null,
                     headline = null,
                     showModeToggle = false,
@@ -99,9 +118,131 @@ fun Calendar1Screen(navController: NavController) {
                         currentYearContentColor = Color.Black,
                         selectedDayContentColor = Color.Black,
                         selectedYearContainerColor = Color.Black,
-                    )
+                    ),
                 )
+
+                when (val result = reminderViewModel.state.value) {
+                    is ReminderState.Success -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 300.dp) // Limit the height of the list of reminders
+                                .padding(start = 10.dp, end = 10.dp, bottom = 72.dp) // Remove top padding and ensure bottom padding for FAB
+                        ) {
+                            items(result.data) { reminder ->
+                                ReminderCard(reminder, dogViewModel)
+                            }
+                        }
+                    }
+                    is ReminderState.Loading -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White)
+                                .padding(bottom = 70.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row (
+                                horizontalArrangement = Arrangement.Center
+                            ){
+                                Text(text = "Cargando..")
+
+                            }
+                        }
+                    }
+                    is ReminderState.Failure -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White)
+                                .padding(bottom = 70.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row (
+                                horizontalArrangement = Arrangement.Center
+                            ){
+                                Text(text = result.message)
+
+                            }
+                        }
+                    }
+                    is ReminderState.Empty -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White)
+                                .padding(bottom = 70.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row (
+                                horizontalArrangement = Arrangement.Center
+                            ){
+                                Text(text = "No se han encontrado recordatorios")
+
+                            }
+                        }
+                    }
+                }
             }
         }
     )
+
+    if (showNoDogsAlert) {
+        AlertDialog(
+            containerColor = Color.White,
+            onDismissRequest = { showNoDogsAlert = false },
+            confirmButton = {
+                TextButton(onClick = { showNoDogsAlert = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("No tienes ningun perro") },
+            text = { Text("Antes de añadir un recordatorio debes añadir tu perro.") }
+        )
+    }
+
+    if (showNoDateAlert) {
+        AlertDialog(
+            containerColor = Color.White,
+            onDismissRequest = { showNoDateAlert = false },
+            confirmButton = {
+                TextButton(onClick = { showNoDateAlert = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Fecha no seleccionada") },
+            text = { Text("Por favor, selecciona una fecha antes de continuar.") }
+        )
+    }
+}
+
+@Composable
+fun ReminderCard(
+    reminder: Reminder,
+    dogViewModel: DogViewModel = viewModel()
+) {
+    var dog by remember { mutableStateOf<Dog?>(null) }
+
+    LaunchedEffect(reminder.dogId) {
+        dogViewModel.getDogById(reminder.dogId) {
+            dog = it
+        }
+    }
+
+    ElevatedCard(
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = Color(0xFFF1F8F7),
+            contentColor = Color.Black
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "Descripción: ${reminder.description}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Fecha: ${reminder.date}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = if (dog != null) "Perro: ${dog!!.name}" else "Cargando información del perro...", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
 }

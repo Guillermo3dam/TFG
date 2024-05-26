@@ -51,6 +51,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tfg.R
 import com.example.tfg.navigation.AppScreens
@@ -74,7 +75,7 @@ fun Cabecera(modificador: Modifier) {
 @Composable
 fun Logo(){
         Image(
-            painter = painterResource(id = R.drawable.logo_collar),
+            painter = painterResource(id = R.drawable.logo_collar_fondo),
             contentDescription = "logo",
             modifier = Modifier
                 .size(200.dp)
@@ -263,6 +264,7 @@ fun nuevaLogin(
 
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
+            Spacer(modifier = Modifier.padding(5.dp))
             Logo()
             Spacer(modifier = Modifier.padding(top = 18.dp ))
             if(showLoginForm.value){
