@@ -381,11 +381,12 @@ fun DogInputField(
     TextField(
         value = valueState.value,
         onValueChange = { valueState.value = it },
-        placeholder = { Text(
-            text = labelId,
-            color = Color.Black,
-            modifier = Modifier.padding(start = 6.dp)
-        ) },
+        placeholder = {
+            Text(
+                text = labelId,
+                color = Color.Black,
+                modifier = Modifier.padding(start = 6.dp)
+            )},
         singleLine = isSingleLine,
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),

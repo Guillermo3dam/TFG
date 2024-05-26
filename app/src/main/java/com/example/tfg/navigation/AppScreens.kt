@@ -36,5 +36,6 @@ sealed class AppScreens (
     object SnackRecipesScreen : AppScreens(null,null,"snack_recipes_screen")
     object MyDogsScreen : AppScreens(null,null,"my_dogs_screen")
     object SelectedDogScreen : AppScreens(null,null,"selected_dog_screen")
+    object AddReminderScreen : AppScreens(null,null,"add_reminder_screen")
 
 }

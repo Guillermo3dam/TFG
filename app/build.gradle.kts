@@ -112,4 +112,11 @@ dependencies {
     //libreria para deserializar
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
+
+    implementation("androidx.compose.foundation:foundation:1.0.5")
+    implementation("androidx.compose.material3:material3:1.0.0-alpha05")
+    implementation("androidx.compose.runtime:runtime:1.0.5")
+    implementation("androidx.navigation:navigation-compose:2.4.0-alpha10")
+
+
 }

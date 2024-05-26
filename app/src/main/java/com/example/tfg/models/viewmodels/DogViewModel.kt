@@ -66,15 +66,7 @@ class DogViewModel : ViewModel() {
 
 
 
-    fun getDogs() {
-        if (auth.currentUser != null) {
-            viewModelScope.launch {
-                getDogData()
-            }
-        } else {
-            state.value = DogState.Failure("Usuario no autenticado")
-        }
-    }
+
 
 
 
@@ -142,6 +134,16 @@ class DogViewModel : ViewModel() {
         }
     }
 
+
+    fun getDogs() {
+        if (auth.currentUser != null) {
+            viewModelScope.launch {
+                getDogData()
+            }
+        } else {
+            state.value = DogState.Failure("Usuario no autenticado")
+        }
+    }
 
     private fun getDogData() {
         state.value = DogState.Loading
