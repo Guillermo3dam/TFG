@@ -31,19 +31,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.tfg.models.classes.Dog
 import com.example.tfg.models.viewmodels.DogState
-import com.example.tfg.models.viewmodels.ReminderState
 import com.example.tfg.models.viewmodels.DogViewModel
-import com.example.tfg.navigation.AppNavigation
+import com.example.tfg.models.viewmodels.ReminderViewModel
 import com.example.tfg.navigation.AppScreens
 
 
@@ -169,12 +167,21 @@ fun MyDogsScreen(
 fun ItemDog(
     dog: Dog,
     isSelected: Boolean,
-    viewModel: DogViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    dogViewModel: DogViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    reminderViewModel: ReminderViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     onClick: () -> Unit,
-    widthModifier: Modifier = Modifier.fillMaxWidth()
+    widthModifier: Modifier = Modifier.fillMaxWidth(),
+    showDeleteIcon: Boolean = true
 ) {
     val defaultColor = Color(0xFFF1F8F7)
     val selectedColor = Color(0xFF57B262)
+
+    val showDialog = remember { mutableStateOf(false) }
+
+    // Función para mostrar el diálogo de confirmación
+    fun showDeleteConfirmationDialog() {
+        showDialog.value = true
+    }
 
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = if (isSelected) selectedColor else defaultColor),
@@ -193,27 +200,41 @@ fun ItemDog(
                 .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = null,
-                tint = Color.Red,
-            )
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = dog.name,
                 color = Color.Black,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,  // Ajuste para puntos suspensivos
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
-            Icon(
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = null,
-                tint = Color.Red,
-                modifier = Modifier.clickable {
-                    viewModel.deleteDog(dog.id)
+            if (showDeleteIcon) {
+                IconButton(
+                    onClick = { showDeleteConfirmationDialog() },
+                    modifier = Modifier.clickable { /* No action on click */ }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Delete",
+                        tint = Color.Red
+                    )
                 }
-            )
+            }
         }
     }
+
+    if (showDialog.value) {
+        MyDialog(
+            title = "Eliminar perro",
+            option = "¡¡ATENCIÓN!! Se borrará toda la información de tu perro incluidos sus recordatorios de forma PERMANENTE. ¿Seguro de que deseas eliminar a ${dog.name.uppercase()}?",
+            onDismiss = { showDialog.value = false },
+            onConfirm = {
+                dogViewModel.deleteDog(dog.id, reminderViewModel)
+                showDialog.value = false
+            },
+            color = Color.Red
+        )
+    }
 }
+
+

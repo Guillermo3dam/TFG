@@ -18,50 +18,53 @@ class LoginViewModel : ViewModel(){
     private val auth : FirebaseAuth = Firebase.auth
     private val _loading = MutableLiveData(false)
 
-    fun signInWithEmailAndPassword(email: String, password : String, home: ()-> Unit)
-    = viewModelScope.launch {
-        try {
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener {authResult->
-                    Log.d(TAG, "singInWithEmailAndPassword Logueado!!!: ${authResult.toString()}")
-                    home()
-                }
-                .addOnFailureListener{ex->
-                    // añadir código mensaje error
-
-
-                    // Tienes acceso a la excepción
-                    Log.d(TAG, "singInWithEmailAndPassword Falló!!!: ${ex.localizedMessage}")
-                    //errorLogueo()
-                }
-
-        }catch (ex: Exception){
-            Log.d(TAG, "singInWithEmailAndPassword: ${ex.message}")
+    fun signInWithEmailAndPassword(email: String, password: String, home: () -> Unit, onError: (String) -> Unit) =
+        viewModelScope.launch {
+            try {
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnSuccessListener { authResult ->
+                        Log.d(TAG, "signInWithEmailAndPassword Logueado!!!: ${authResult.toString()}")
+                        home()
+                    }
+                    .addOnFailureListener { ex ->
+                        val errorMessage = ex.message ?: "Error desconocido"
+                        Log.d(TAG, "signInWithEmailAndPassword Falló!!!: ${errorMessage}")
+                        onError("Usuario o contraseña incorrectos.")
+                    }
+            } catch (ex: Exception) {
+                Log.d(TAG, "signInWithEmailAndPassword: ${ex.message}")
+                onError("Error al iniciar sesión.")
+            }
         }
-    }
 
     fun createUsersWithEmailAndPassword(
-        email:String,
+        email: String,
         password: String,
-        home:() -> Unit
-    ){
-        if(_loading.value == false){
+        home: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        if (_loading.value == false) {
             _loading.value = true
 
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
-                    if (task.isSuccessful){
+                    if (task.isSuccessful) {
                         val displayName =
-                            task.result.user?.email?.split("@")?.get(0)
+                            task.result?.user?.email?.split("@")?.get(0)
                         createUser(displayName)
                         home()
-                    }else{
-                        Log.d(TAG, "createUserWithEmailAndPassword: ${task.result.toString()}")
                     }
+                    _loading.value = false
+                }
+                .addOnFailureListener { exception ->
+                    val errorMessage = exception.message ?: "Error desconocido"
+                    Log.d(TAG, "createUserWithEmailAndPassword error: $errorMessage")
+                    onError("La direción de email ya esta en uso por otra cuenta")
                     _loading.value = false
                 }
         }
     }
+
 
     private fun createUser(displayName: String?) {
         val userId = auth.currentUser?.uid

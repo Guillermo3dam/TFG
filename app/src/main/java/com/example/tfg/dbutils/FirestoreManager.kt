@@ -1,5 +1,6 @@
 package com.example.tfg.dbutils
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.tfg.models.classes.User
 import com.google.firebase.auth.FirebaseAuth
@@ -21,8 +22,15 @@ class FirestoreManager : ViewModel() {
         userRef?.set(user)?.await()
     }
 
-    suspend fun deleteUser(email : String) {
+
+    suspend fun deleteUser(email: String) {
         val userRef = firestore.collection("users").document(email)
-        userRef.delete().await()
+        try {
+            userRef.delete().await()
+            Log.d("firesotremanager", "usuario borrado.")
+        } catch (e: Exception) {
+            Log.w("firesotremanager", "error al borrar el usuario: ${e.message}")
+            throw e
+        }
     }
 }

@@ -26,6 +26,8 @@ class DogViewModel : ViewModel() {
     var selectedDog: MutableState<Dog?> = mutableStateOf(null)
 
 
+
+
     fun updateDog(id: String, name: String, birthday: String, isMale: Boolean, isNeutered: Boolean, isPPP: Boolean) {
         val userDocumentRef = db.collection("users").document(userEmail)
 
@@ -102,7 +104,8 @@ class DogViewModel : ViewModel() {
 
 
 
-    fun deleteDog(dogId: String) {
+
+    fun deleteDog(dogId: String, reminderViewModel: ReminderViewModel) {
         if (auth.currentUser != null) {
             val userDocumentRef = db.collection("users").document(userEmail)
 
@@ -114,7 +117,11 @@ class DogViewModel : ViewModel() {
                         userDocumentRef.update("dogs", updatedDogsList)
                             .addOnSuccessListener {
                                 Log.d(ContentValues.TAG, "Perro eliminado correctamente")
-                                getDogs()  // Actualizar la lista de perros
+
+                                // Eliminar los recordatorios asociados al perro
+                                reminderViewModel.deleteRemindersByDogId(dogId) {
+                                    getDogs()  // Actualizar la lista de perros
+                                }
                             }
                             .addOnFailureListener { e ->
                                 Log.w(ContentValues.TAG, "Error al eliminar el perro", e)
@@ -133,6 +140,7 @@ class DogViewModel : ViewModel() {
             state.value = DogState.Failure("Usuario no autenticado")
         }
     }
+
 
 
     fun getDogs() {

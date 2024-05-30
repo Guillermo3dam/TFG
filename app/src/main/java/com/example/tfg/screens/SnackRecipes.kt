@@ -117,7 +117,7 @@ fun listSnackRecipes(): List<Recipe> {
         Recipe(
             R.drawable.snack_zanahoria,
             "Snack de zanahoria y plátano",
-            "Ricos snacks de zanahoria, plátano y huevo. Frecuencia recomendada: 1 vez por semana",
+            "Ricos snacks de ingredientes naturales como zanahoria, plátano y huevo. Frecuencia recomendada: 1 vez por semana",
             listOf("Zanahoria 1 unidad", "Plátano 1 unidad", "Huevo 1 unidad"),
             listOf("Horno", "Olla", "Tenedor", "Cuenco"),
             listOf(

@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -121,19 +121,19 @@ fun ContentBottomSheet(recipe: Recipe) {
             text = recipe.text,
             color = Color.Black,
             modifier = Modifier.padding(top = 6.dp),
-            fontSize = 12.sp
+            fontSize = 13.sp
         )
         Spacer(modifier = Modifier.padding(6.dp))
         Column {
             Tabs(pagerState)
-            TabsContent(pagerState, recipe)
+            ItemsTabsContent(pagerState, recipe)
         }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TabsContent(pagerState: PagerState, recipe: Recipe) {
+fun ItemsTabsContent(pagerState: PagerState, recipe: Recipe) {
     val tabs = listOf<@Composable () -> Unit>(
         { Ingredients(recipe) },
         { Utensils(recipe) },
@@ -158,7 +158,7 @@ fun Utensils(recipe: Recipe) {
 
 @Composable
 fun Instructions(recipe: Recipe) {
-    ElaborationContent(recipe.instructions)
+    NumberedElaborationContent(recipe.instructions)
 }
 
 @Composable
@@ -169,7 +169,20 @@ fun ElaborationContent(content: List<String>) {
             .padding(top = 6.dp)
     ) {
         items(content) { item ->
-            ElevatedCardContent(text = item)
+            ItemsTabsContent(text = item)
+        }
+    }
+}
+
+@Composable
+fun NumberedElaborationContent(content: List<String>) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 6.dp, bottom = 40.dp)
+    ) {
+        itemsIndexed(content) { index, item ->
+            ItemsTabsContent(text = "${index + 1}. $item")
         }
     }
 }
@@ -209,11 +222,11 @@ fun Tabs(pagerState: PagerState) {
 }
 
 
+
 @Composable
-fun ElevatedCardContent(text: String) {
-    ElevatedCard(
+fun ItemsTabsContent(text: String) {
+    Card(
         colors = CardDefaults.cardColors(containerColor = Color(241, 248, 247)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .padding(6.dp)
             .fillMaxWidth()
@@ -224,9 +237,7 @@ fun ElevatedCardContent(text: String) {
                 .align(Alignment.CenterHorizontally)
                 .padding(6.dp),
             color = Color.Black,
-            fontSize = 12.sp,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 3
+            fontSize = 13.sp
         )
     }
 }
@@ -239,7 +250,7 @@ fun ItemRecipe(recipe: Recipe, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .padding(10.dp)
-            .height(360.dp),
+            .height(340.dp),
         onClick = onClick
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
@@ -263,9 +274,9 @@ fun ItemRecipe(recipe: Recipe, onClick: () -> Unit) {
                 text = recipe.text,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 color = Color.Black,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 4
+                maxLines = 3
             )
         }
     }

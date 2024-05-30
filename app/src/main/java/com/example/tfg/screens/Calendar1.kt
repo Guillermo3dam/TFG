@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tfg.models.classes.Dog
-import com.example.tfg.models.classes.Recipe
 import com.example.tfg.models.classes.Reminder
 import com.example.tfg.models.viewmodels.ReminderViewModel
 import com.example.tfg.models.viewmodels.ReminderState
@@ -130,7 +129,9 @@ fun Calendar1Screen(
                                 .padding(start = 10.dp, end = 10.dp, bottom = 72.dp) // Remove top padding and ensure bottom padding for FAB
                         ) {
                             items(result.data) { reminder ->
-                                ReminderCard(reminder, dogViewModel)
+                                ReminderCard(reminder, dogViewModel){
+                                    //reminderViewModel.deleteReminderFromCurrentUser(reminder)
+                                }
                             }
                         }
                     }
@@ -219,8 +220,10 @@ fun Calendar1Screen(
 @Composable
 fun ReminderCard(
     reminder: Reminder,
-    dogViewModel: DogViewModel = viewModel()
-) {
+    dogViewModel: DogViewModel = viewModel(),
+    onClick: () -> Unit,
+
+    ) {
     var dog by remember { mutableStateOf<Dog?>(null) }
 
     LaunchedEffect(reminder.dogId) {
@@ -237,12 +240,13 @@ fun ReminderCard(
         colors = CardDefaults.elevatedCardColors(
             containerColor = Color(0xFFF1F8F7),
             contentColor = Color.Black
-        )
+        ),
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Descripción: ${reminder.description}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Fecha: ${reminder.date}", style = MaterialTheme.typography.bodyMedium)
             Text(text = if (dog != null) "Perro: ${dog!!.name}" else "Cargando información del perro...", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Descripción: ${reminder.description}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Fecha: ${reminder.date} ${reminder.hour}", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

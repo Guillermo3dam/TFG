@@ -93,24 +93,38 @@ fun Settings(
                 showDialogDeleteAccount = true
             }
             if (showDialogDeleteAccount) {
-                ExitDialog(
-                    onDismiss =  {showDialogDeleteAccount = false} ,
+                MyDialog(
+                    onDismiss = { showDialogDeleteAccount = false },
                     onConfirm = {
-                        val user = Firebase.auth.currentUser!!
-                        val auth : FirebaseAuth = Firebase.auth
+                        val user = Firebase.auth.currentUser
+                        val auth: FirebaseAuth = Firebase.auth
                         val userEmail = auth.currentUser?.email
 
-                        user.delete()
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    CoroutineScope(Dispatchers.Default).launch {
-                                        viewModel.deleteUser(userEmail.toString())
-                                    }
-                                    Log.d(TAG, "User account deleted.")
-                                    navController.navigate(route = AppScreens.LoginScreen.route)
+                        if (user != null && userEmail != null) {
+                            // Delete the user document from Firestore first
+                            CoroutineScope(Dispatchers.IO).launch {
+                                try {
+                                    viewModel.deleteUser(userEmail)
+                                    Log.d(TAG, "User document deleted from Firestore.")
+
+                                    // After the user document is deleted, delete the user from Firebase Auth
+                                    user.delete()
+                                        .addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                Log.d(TAG, "User account deleted.")
+                                                navController.navigate(route = AppScreens.LoginScreen.route)
+                                            } else {
+                                                Log.w(TAG, "Failed to delete user account: ${task.exception}")
+                                            }
+                                        }
+                                } catch (e: Exception) {
+                                    Log.w(TAG, "Error deleting user document: ${e.message}")
                                 }
                             }
-                                },
+                        } else {
+                            Log.w(TAG, "No authenticated user found.")
+                        }
+                    },
                     title = "Borrar cuenta",
                     option = "¡¡ATENCION!! Tus datos se borrarán de forma PERMANENTE. ¿Seguro que quieres borrar tus datos?",
                     color = Color.Red
@@ -123,7 +137,7 @@ fun Settings(
                 showDialogExit = true
             }
             if (showDialogExit) {
-                ExitDialog(
+                MyDialog(
                     onDismiss =  {showDialogExit = false} ,
                     onConfirm = {
                         navController.navigate(route = AppScreens.LoginScreen.route)
@@ -139,7 +153,7 @@ fun Settings(
 }
 
 @Composable
-fun ExitDialog(
+fun MyDialog(
     title : String,
     option: String,
     onDismiss: () -> Unit,
@@ -154,7 +168,7 @@ fun ExitDialog(
                     onConfirm()
                 }
             ) {
-                Text(text = "SI",
+                Text(text = "OK",
                     color =  color,
                     fontSize = 15.sp)
             }
@@ -165,7 +179,7 @@ fun ExitDialog(
                     onDismiss()
                 }
             ) {
-                Text(text = "NO",
+                Text(text = "Cancelar",
                     color = Color.Black,
                     fontSize = 15.sp)
             }

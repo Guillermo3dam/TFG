@@ -1,7 +1,6 @@
 package com.example.tfg.screens
 
 import android.annotation.SuppressLint
-import android.app.TimePickerDialog
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -29,12 +28,10 @@ import androidx.navigation.NavController
 import com.example.tfg.models.classes.Dog
 import com.example.tfg.models.classes.Reminder
 import com.example.tfg.models.viewmodels.DogState
-import com.example.tfg.models.viewmodels.ReminderState
 import com.example.tfg.models.viewmodels.DogViewModel
 import com.example.tfg.models.viewmodels.ReminderViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalTime
 import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -57,7 +54,7 @@ fun AddReminderScreen(
 
     var finalTime by remember { mutableStateOf<String?>(null) }
     val state = rememberTimePickerState(is24Hour = true)
-    val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+    val formatter = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
     val snackScope = rememberCoroutineScope()
 
@@ -127,10 +124,10 @@ fun AddReminderScreen(
                                             dog = dog,
                                             isSelected = dog.id == selectedDogId,
                                             onClick = {
-                                                selectedDogId =
-                                                    if (selectedDogId == dog.id) null else dog.id
+                                                selectedDogId = if (selectedDogId == dog.id) null else dog.id
                                             },
-                                            widthModifier = Modifier.width(200.dp)
+                                            widthModifier = Modifier.width(200.dp),
+                                            showDeleteIcon = false
                                         )
                                         Spacer(modifier = Modifier.width(16.dp))
                                     }
@@ -165,7 +162,13 @@ fun AddReminderScreen(
                                             showDialog = false
                                         },
                                     ) {
-                                        TimeInput(state = state)
+                                        TimeInput(state = state,
+                                            colors = TimePickerDefaults.colors(
+                                                timeSelectorSelectedContainerColor = Color(241, 248, 247),
+                                                timeSelectorUnselectedContainerColor = Color(241, 248, 247)
+
+                                            )
+                                        )
                                     }
                                 }
 
@@ -229,6 +232,7 @@ fun AddReminderScreen(
                                         reminderViewModel.addReminderToCurrentUser(reminder)
                                         description.value = ""
                                         selectedDogId = null
+                                        finalTime = null
                                         coroutineScope.launch {
                                             snackbarHostState.showSnackbar("Has añadido un recordatorio")
                                         }
@@ -305,7 +309,7 @@ fun DateText(
 
 @Composable
 fun TimePickerDialog(
-    title: String = "Select Time",
+    title: String = "Selecciona la hora",
     onCancel: () -> Unit,
     onConfirm: () -> Unit,
     toggle: @Composable () -> Unit = {},
@@ -323,8 +327,9 @@ fun TimePickerDialog(
                 .height(IntrinsicSize.Min)
                 .background(
                     shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surface
+                    color = Color.White
                 ),
+            color = Color.White
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -341,15 +346,22 @@ fun TimePickerDialog(
                 Row(
                     modifier = Modifier
                         .height(40.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     toggle()
                     Spacer(modifier = Modifier.weight(1f))
-                    TextButton(onClick = onCancel) {
-                        Text("Cancel")
+                    OutlinedButton(onClick = onCancel,
+                        border = BorderStroke(1.dp, Color.Transparent)
+                    ) {
+                        Text("Cancelar", color = Color.Black)
                     }
-                    TextButton(onClick = onConfirm) {
-                        Text("OK")
+                    Button(onClick = onConfirm,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF57B262),
+                            disabledContainerColor = Color(0xFF57B262))
+                    ) {
+                        Text("OK", color = Color.Black)
                     }
                 }
             }

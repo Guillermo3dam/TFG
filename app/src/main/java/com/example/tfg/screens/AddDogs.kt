@@ -145,8 +145,7 @@ fun AddDogForm(
                 .height(55.dp),
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = Color(241, 248, 247),
-                contentColor = Color.Black
-            ),
+                contentColor = Color.Black),
             border = BorderStroke(1.dp, Color.Transparent),
             shape = RectangleShape
         ) {
@@ -340,7 +339,8 @@ fun AddDogForm(
 fun MyDatePicker(
     state : DatePickerState
 ) {
-    DatePicker(state = state,
+    DatePicker(
+        state = state,
         colors = DatePickerDefaults.colors(
             containerColor = Color.White,
             titleContentColor = Color.Black,

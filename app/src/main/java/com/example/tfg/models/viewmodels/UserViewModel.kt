@@ -12,7 +12,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 class UserViewModel : ViewModel() {
@@ -20,6 +22,8 @@ class UserViewModel : ViewModel() {
     val user = mutableStateOf(User())
     var state: MutableState<UserState> = mutableStateOf(UserState.Empty)
 
+    private val db = FirebaseFirestore.getInstance()
+    private val usersCollection = db.collection("users")
 
 
     fun getUser() {
@@ -36,7 +40,7 @@ class UserViewModel : ViewModel() {
         state.value = UserState.Loading
 
 
-        FirebaseFirestore.getInstance().collection("users").document(userEmail)
+        db.collection("users").document(userEmail)
             .get()
             .addOnSuccessListener { document ->
                 val user1 = User(
@@ -50,5 +54,34 @@ class UserViewModel : ViewModel() {
                 Log.d("UserData", "Error obteniendo datos de usuario: ${exception.message}")
                 // Maneja el error según sea necesario
             }
+    }
+
+
+    suspend fun checkIfEmailExists(email: String): Boolean {
+        return try {
+            val documentSnapshot = usersCollection.document(email).get().await()
+            documentSnapshot.exists()
+        } catch (e: Exception) {
+            // Manejar cualquier error que ocurra durante la consulta
+            false
+        }
+    }
+
+    // Función para enviar correo electrónico de restablecimiento de contraseña
+    fun sendPasswordResetEmail(email: String, onSuccess: () -> Unit, onError: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (checkIfEmailExists(email)) {
+                Firebase.auth.sendPasswordResetEmail(email)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            onSuccess()
+                        } else {
+                            onError()
+                        }
+                    }
+            } else {
+                onError()
+            }
+        }
     }
 }

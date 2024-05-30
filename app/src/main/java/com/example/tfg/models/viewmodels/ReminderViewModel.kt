@@ -1,12 +1,10 @@
 package com.example.tfg.models.viewmodels
 
-import android.content.ContentValues
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.tfg.models.classes.Dog
 import com.example.tfg.models.classes.Reminder
 import com.example.tfg.models.classes.User
 import com.google.firebase.auth.FirebaseAuth
@@ -14,6 +12,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
 
 class ReminderViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
@@ -41,7 +40,8 @@ class ReminderViewModel : ViewModel() {
                 val user = document.toObject(User::class.java)
                 val firebaseReminders = user?.reminder ?: emptyList()
                 if (firebaseReminders.isNotEmpty()) {
-                    reminderList = firebaseReminders.toMutableList()
+                    // Ordena los recordatorios por fechas de más cercanas a más lejanas
+                    reminderList = firebaseReminders.sortedBy { it.date }.toMutableList()
                     state.value = ReminderState.Success(reminderList)
                 } else {
                     state.value = ReminderState.Empty
@@ -75,4 +75,71 @@ class ReminderViewModel : ViewModel() {
             state.value = ReminderState.Failure("Usuario no autenticado")
         }
     }
+
+
+    fun deleteRemindersByDogId(dogId: String, callback: () -> Unit) {
+        if (auth.currentUser != null) {
+            viewModelScope.launch {
+                try {
+                    val userDocumentRef = db.collection("users").document(userEmail)
+
+                    // Fetch user document
+                    val userDocumentSnapshot = userDocumentRef.get().await()
+                    if (userDocumentSnapshot.exists()) {
+                        val user = userDocumentSnapshot.toObject(User::class.java)
+                        val remindersToDelete = user?.reminder?.filter { it.dogId == dogId } ?: emptyList()
+
+                        remindersToDelete.forEach { reminder ->
+                            userDocumentRef.update("reminder", FieldValue.arrayRemove(reminder)).await()
+                        }
+
+                        // Update local state
+                        reminderList.removeAll(remindersToDelete)
+                        state.value = if (reminderList.isNotEmpty()) {
+                            ReminderState.Success(reminderList)
+                        } else {
+                            ReminderState.Empty
+                        }
+                        callback()
+                    } else {
+                        state.value = ReminderState.Failure("El documento del usuario no existe")
+                        callback()
+                    }
+                } catch (e: Exception) {
+                    state.value = ReminderState.Failure("Error al eliminar los recordatorios del perro: ${e.message}")
+                    callback()
+                }
+            }
+        } else {
+            state.value = ReminderState.Failure("Usuario no autenticado")
+            callback()
+        }
+    }
+
+
+    fun deleteRemindersByDogId(dogId: String) {
+        val userEmail = auth.currentUser?.email
+        if (userEmail != null) {
+            viewModelScope.launch {
+                try {
+                    val remindersToDelete = reminderList.filter { it.dogId == dogId }
+                    val userDocumentRef = db.collection("users").document(userEmail)
+                    remindersToDelete.forEach { reminder ->
+                        userDocumentRef.update("reminder", FieldValue.arrayRemove(reminder)).await()
+                    }
+                    reminderList.removeAll(remindersToDelete)
+                    state.value = if (reminderList.isNotEmpty()) {
+                        ReminderState.Success(reminderList)
+                    } else {
+                        ReminderState.Empty
+                    }
+                } catch (e: Exception) {
+                    state.value = ReminderState.Failure("Error al eliminar los recordatorios del perro: ${e.message}")
+                }
+            }
+        } else {
+            state.value = ReminderState.Failure("Usuario no autenticado")
+        }
+    }
+
 }

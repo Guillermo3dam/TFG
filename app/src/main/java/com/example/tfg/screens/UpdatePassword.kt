@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -44,7 +45,6 @@ import com.google.firebase.ktx.Firebase
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdatePasswordScreen(navController: NavHostController) {
-
     // Variables de estado para la nueva contraseña, confirmación y visibilidad de los campos de contraseña
     val newPassword = rememberSaveable { mutableStateOf("") }
     val confirmPassword = rememberSaveable { mutableStateOf("") }
@@ -55,14 +55,22 @@ fun UpdatePasswordScreen(navController: NavHostController) {
     var showNoPasswordChangedAlert by remember { mutableStateOf(false) }
 
     // Estado para mostrar el mensaje de error si las contraseñas no coinciden
-    var showError by remember { mutableStateOf(false) }
+    var showErrorPasswordMismatch by remember { mutableStateOf(false) }
+
+    // Estado para mostrar el mensaje de error si la contraseña no tiene al menos 6 caracteres
+    var showErrorPasswordLength by remember { mutableStateOf(false) }
 
     // Controlador del teclado
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val valido = remember(confirmPassword.value, newPassword.value) {
-        confirmPassword.value.trim().isNotEmpty() && newPassword.value.trim().isNotEmpty() && newPassword.value == confirmPassword.value
-    }
+    // Validar si las contraseñas coinciden
+    val passwordsMatch = newPassword.value == confirmPassword.value
+
+    // Validar si la contraseña tiene al menos 6 caracteres
+    val validPasswordLength = newPassword.value.length >= 6
+    val validConfirmPasswordLength = confirmPassword.value.length >= 6
+
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -100,24 +108,27 @@ fun UpdatePasswordScreen(navController: NavHostController) {
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "Bienvenido a Mi Pantalla",
-                        color = Color.Black,
-                        fontSize = 24.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
+                    Spacer(modifier = Modifier.padding(35.dp))
 
                     // Labels y campos de entrada de contraseña
-                    PasswordInput(passwordState = newPassword, labelId = "Introduce nueva contraseña", passwordVisible = newPasswordVisible)
-                    PasswordInput(passwordState = confirmPassword, labelId = "Confirmar nueva contraseña", passwordVisible = confirmPasswordVisible)
+                    PasswordInput(
+                        passwordState = newPassword,
+                        labelId = "Introduce nueva contraseña",
+                        passwordVisible = newPasswordVisible,
+                        supportingText = if (newPassword.value.isNotEmpty() && !validPasswordLength) "La contraseña debe tener al menos 6 caracteres" else if (!passwordsMatch) "Las contraseñas no coinciden" else null
+                    )
+                    PasswordInput(
+                        passwordState = confirmPassword,
+                        labelId = "Confirmar nueva contraseña",
+                        passwordVisible = confirmPasswordVisible,
+                        supportingText = if (newPassword.value.isNotEmpty() && !validConfirmPasswordLength) "La contraseña debe tener al menos 6 caracteres" else if (!passwordsMatch) "Las contraseñas no coinciden" else null
+                    )
 
                     // Botón de confirmación
                     SubmitButton(
                         textId = "Confirmar",
-                        inputValido = valido
+                        inputValido = passwordsMatch && validPasswordLength
                     ) {
-
                         val user = Firebase.auth.currentUser
                         val newPasswordText = newPassword.value
                         val confirmPasswordText = confirmPassword.value
@@ -126,33 +137,36 @@ fun UpdatePasswordScreen(navController: NavHostController) {
                         if (newPasswordText.isNotEmpty() && confirmPasswordText.isNotEmpty()) {
                             // Verificar si las contraseñas coinciden
                             if (newPasswordText == confirmPasswordText) {
-                                // Actualizar la contraseña del usuario
-                                user?.updatePassword(newPasswordText)
-                                    ?.addOnCompleteListener { task ->
-                                        if (task.isSuccessful) {
-                                            // Mostrar mensaje de contraseña actualizada con éxito
-                                            showNoPasswordChangedAlert = true
-                                            Log.d(TAG, "User password updated.")
-                                        } else {
-                                            // Mostrar mensaje de error si no se pudo actualizar la contraseña
-                                            showError = true
-                                            Log.e(TAG, "Failed to update user password.", task.exception)
+                                // Verificar si la contraseña tiene al menos 6 caracteres
+                                if (validPasswordLength) {
+                                    // Actualizar la contraseña del usuario
+                                    user?.updatePassword(newPasswordText)
+                                        ?.addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                // Mostrar mensaje de contraseña actualizada con éxito
+                                                showNoPasswordChangedAlert = true
+                                                Log.d(TAG, "User password updated.")
+                                            } else {
+                                                // Mostrar mensaje de error si no se pudo actualizar la contraseña
+                                                showErrorPasswordMismatch = true
+                                                Log.e(TAG, "Failed to update user password.", task.exception)
+                                            }
                                         }
-                                    }
-                                // Reiniciar el estado de mostrar error
-                                showError = false
-                                newPassword.value = ""
-                                confirmPassword.value = ""
+                                    // Reiniciar el estado de mostrar error
+                                    showErrorPasswordMismatch = false
+                                    newPassword.value = ""
+                                    confirmPassword.value = ""
 
-                                // Ocultar el teclado después de pulsar el botón
-                                keyboardController?.hide()
+                                    // Ocultar el teclado después de pulsar el botón
+                                    keyboardController?.hide()
+                                } else {
+                                    // Mostrar mensaje de error si la contraseña no tiene al menos 6 caracteres
+                                    showErrorPasswordLength = true
+                                }
                             } else {
                                 // Mostrar mensaje de contraseñas no coincidentes
-                                showError = true
+                                showErrorPasswordMismatch = true
                             }
-                        } else {
-                            // Mostrar mensaje de alerta si alguna de las contraseñas está vacía
-                            showError = true
                         }
                     }
 
@@ -162,13 +176,38 @@ fun UpdatePasswordScreen(navController: NavHostController) {
                     }
 
                     // Mostrar el mensaje de error si las contraseñas no coinciden
-                    if (showError) {
-                        showErrorDialog(onDismiss = { showError = false })
+                    if (showErrorPasswordMismatch) {
+                        showErrorDialog(onDismiss = { showErrorPasswordMismatch = false }, title = "Error", message = "Las contraseñas no coinciden")
+                    }
+
+                    // Mostrar el mensaje de error si la contraseña no tiene al menos 6 caracteres
+                    if (showErrorPasswordLength) {
+                        showErrorDialog(onDismiss = { showErrorPasswordLength = false }, title = "Error", message = "La contraseña debe tener al menos 6 caracteres")
                     }
                 }
             }
         )
     }
+}
+
+
+@Composable
+fun showErrorDialog(
+    onDismiss: () -> Unit,
+    title: String,
+    message: String
+) {
+    AlertDialog(
+        containerColor = Color.White,
+        onDismissRequest = { onDismiss() },
+        confirmButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text("OK")
+            }
+        },
+        title = { Text(title) },
+        text = { Text(message) }
+    )
 }
 
 @Composable

@@ -1,6 +1,5 @@
 package com.example.tfg.screens
 
-import android.app.Activity
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,12 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -30,7 +28,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -42,16 +39,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tfg.R
 import com.example.tfg.navigation.AppScreens
@@ -60,125 +54,20 @@ import com.example.tfg.models.viewmodels.LoginViewModel
 
 @Composable
 fun LoginScreen(navController: NavController) {
-    nuevaLogin(navController)
+    Login(navController)
 }
 
-@Composable
-fun Cabecera(modificador: Modifier) {
-    val activity = LocalContext.current as Activity
-    Icon(
-        imageVector = Icons.Default.Close,
-        contentDescription = "cerrar app",
-        modifier = modificador.clickable { activity.finish() })
-}
+
 
 @Composable
 fun Logo(){
         Image(
-            painter = painterResource(id = R.drawable.logo_collar_fondo),
+            painter = painterResource(id = R.drawable.logo),
             contentDescription = "logo",
             modifier = Modifier
-                .size(200.dp)
+                .size(175.dp)
         )
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CampoUsuario() {
-    var texto by rememberSaveable { mutableStateOf("") }
-    TextField(
-        value = texto,
-        onValueChange = { texto = it },
-        placeholder = { Text(text = "Correo electrónico", color = Color.Gray) },
-        shape = MaterialTheme.shapes.small,
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = Color.Black,
-            containerColor = Color(247, 237, 237, 255)
-        ),
-        textStyle = TextStyle(color = Color.Black),
-        modifier = Modifier
-            .size(325.dp, 50.dp)
-            .background(color = Color.White)
-    )
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CampoContraseña() {
-    var texto by rememberSaveable { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    TextField(
-        value = texto,
-        onValueChange = { texto = it },
-        placeholder = { Text(text = "Contraseña", color = Color.Gray) },
-        shape = MaterialTheme.shapes.small,
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = Color.Black,
-            containerColor = Color(247, 237, 237, 255)
-        ),
-        textStyle = TextStyle(color = Color.Black),
-        trailingIcon = {
-            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                Icon(
-                    painter = painterResource(
-                        if (passwordVisible) {
-                            R.drawable.ojovisible
-                        } else {
-                            R.drawable.ojoinvisible
-                        }
-                    ),
-                    contentDescription = null,
-                    tint = Color.Gray,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        },
-        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions.Default.copy(
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Done
-        ),
-        singleLine = true,
-
-        modifier = Modifier
-            .size(325.dp, 50.dp)
-            .background(color = Color.Transparent)
-    )
-}
-
-@Composable
-fun BotonLogin(navController : NavController) {
-    var enabled by remember { mutableStateOf(true) }
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp)){
-        Button(
-            onClick = {
-                      //enabled
-                      navController.navigate(route = AppScreens.HomeScreen.route)
-
-                      },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF57B262)
-            ),
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier
-                .padding(16.dp)
-                .clickable { true }
-                .fillMaxWidth()
-
-        ) {
-            Text("Entrar")
-        }
-    }
-}
-
 
 @Composable
 fun ForgorPassword(navController : NavController) {
@@ -200,62 +89,17 @@ fun ForgorPassword(navController : NavController) {
 }
 
 
-@Composable
-fun DivisorOR(){
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 40.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        Divider(modifier = Modifier
-            .weight(1f)
-            .height(0.7.dp)
-        )
-        Text(
-            text = "OR",
-            color = Color.Gray,
-            modifier = Modifier.padding(horizontal = 30.dp)
-        )
-        Divider(modifier = Modifier
-            .weight(1f)
-            .height(0.7.dp)
-        )
-    }
-}
-
-@Composable
-fun SignUp() {
-    HorizontalDivider(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp)
-    )
-    Row(modifier = Modifier.padding(20.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = "¿No tienes cuenta?",
-            color = Color.Gray
-        )
-        Spacer(modifier = Modifier.padding(4.dp))
-        Text(
-            text = "Regístrate ahora.",
-            color =  Color(0xFF57B262),
-            modifier = Modifier
-                .clickable {
-
-                }
-        )
-    }
-}
 
 
 @Composable
-fun nuevaLogin(
+fun Login(
     navController: NavController,
     viewModel: LoginViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     ){
     val showLoginForm = rememberSaveable {
         mutableStateOf(true)
     }
+    var errorMessage by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -273,13 +117,31 @@ fun nuevaLogin(
                 UserForm(
                     isCreateAccount = false,
                     navController = navController
-                ){
-                    email, password ->
-                    Log.d("BestFriend", "Logueando con $email y $password")
-                    viewModel.signInWithEmailAndPassword(email, password){
+                ) { email, password ->
+                    viewModel.signInWithEmailAndPassword(email, password, {
                         navController.navigate(route = AppScreens.HomeScreen.route)
+                    }) { error ->
+                        errorMessage = error
                     }
                 }
+
+                // Mostrar el mensaje de error si hay uno.
+                if (errorMessage.isNotEmpty()) {
+                    AlertDialog(
+                        containerColor = Color.White,
+                        onDismissRequest = { errorMessage = "" },
+                        title = { Text(text = "Error") },
+                        text = { Text(errorMessage) },
+                        confirmButton = {
+                            Button(
+                                onClick = { errorMessage = "" }
+                            ) {
+                                Text("OK")
+                            }
+                        }
+                    )
+                }
+
             }
             else{
                 Text(text = "Crea una cuenta",
@@ -291,10 +153,26 @@ fun nuevaLogin(
                 {
                     email, password ->
                     Log.d("BestFriend", "Creando cuenta con $email y $password")
-                    viewModel.createUsersWithEmailAndPassword(email, password){
+                    viewModel.createUsersWithEmailAndPassword(email, password, {
                         navController.navigate(route = AppScreens.HomeScreen.route)
-
+                    }) { error ->
+                        errorMessage= error
                     }
+                }
+                if (errorMessage.isNotEmpty()) {
+                    AlertDialog(
+                        containerColor = Color.White,
+                        onDismissRequest = { errorMessage = "" },
+                        title = { Text(text = "Error") },
+                        text = { Text(errorMessage) },
+                        confirmButton = {
+                            Button(
+                                onClick = { errorMessage = "" }
+                            ) {
+                                Text("OK")
+                            }
+                        }
+                    )
                 }
             }
             Spacer(modifier = Modifier.padding(top = 140.dp))
@@ -333,28 +211,36 @@ fun UserForm(
     isCreateAccount: Boolean = false,
     onDone: (String, String) -> Unit = {email, pw ->}
 ) {
-    val email = rememberSaveable {
-        mutableStateOf("")
-    }
-    val password = rememberSaveable {
-        mutableStateOf("")
-    }
-    val passwordVisible = rememberSaveable {
-        mutableStateOf(false)
-    }
-    val valido = remember (email.value, password.value){
+    val email = rememberSaveable { mutableStateOf("") }
+    val password = rememberSaveable { mutableStateOf("") }
+    val passwordVisible = rememberSaveable { mutableStateOf(false) }
+
+
+    val validPasswordLength = password.value.length >= 6
+    val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email.value).matches()
+
+    val isValid = remember(email.value, password.value, isEmailValid, validPasswordLength) {
         email.value.trim().isNotEmpty() &&
-                password.value.trim().isNotEmpty()
+                password.value.trim().isNotEmpty() &&
+                isEmailValid &&
+                validPasswordLength
     }
+
+
+
     val keyboardController = LocalSoftwareKeyboardController.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
         EmailInput(
-            emailState = email
-        )
+            emailState = email,
+            showErrorEmailFormat = isEmailValid,
+            )
         PasswordInput(
             passwordState = password,
             labelId = "Contraseña",
-            passwordVisible = passwordVisible
+            passwordVisible = passwordVisible,
+            supportingText = if (password.value.isNotEmpty() && !validPasswordLength) "La contraseña debe tener al menos 6 caracteres" else null
+
         )
         if(!isCreateAccount)
             ForgorPassword(navController)
@@ -366,7 +252,7 @@ fun UserForm(
         Spacer(modifier = Modifier.padding(8.dp))
         SubmitButton(
             textId = if(isCreateAccount) "Registrarse" else "Entrar",
-            inputValido = valido
+            inputValido = isValid
         ){
             onDone(email.value.trim(), password.value.trim())
             keyboardController?.hide()
@@ -403,11 +289,13 @@ fun SubmitButton(
 fun PasswordInput(
     passwordState: MutableState<String>,
     labelId: String,
-    passwordVisible: MutableState<Boolean>
+    passwordVisible: MutableState<Boolean>,
+    supportingText: String? = null
 ) {
     val visualTransformation = if(passwordVisible.value)
         VisualTransformation.None
     else PasswordVisualTransformation()
+
 
     OutlinedTextField(
         value = passwordState.value,
@@ -433,8 +321,13 @@ fun PasswordInput(
             unfocusedIndicatorColor = Color.Transparent,
             cursorColor = Color.Black,
             containerColor = Color(241, 248, 247)
+        ),
+        supportingText = {
+            if (supportingText?.isNotEmpty() == true) {
+                Text(text = supportingText, color = Color.Red)
+            }
+        }
 
-        )
     )
 }
 
@@ -459,12 +352,15 @@ fun PasswordVisibleIcon(
 @Composable
 fun EmailInput(
     emailState: MutableState<String>,
-    labelId : String = "Email"
-) {
+    labelId : String = "Email",
+    showErrorEmailFormat : Boolean = false,
+    ) {
+
     InputField(
         valueState = emailState,
         labelId = labelId,
-        keyboardType = KeyboardType.Email
+        keyboardType = KeyboardType.Email,
+        supportingText = if (emailState.value.isNotEmpty() && !showErrorEmailFormat) "El correo electrónico no está bien formado" else null
     )
 }
 
@@ -474,7 +370,9 @@ fun InputField(
     valueState: MutableState<String>,
     labelId: String,
     keyboardType: KeyboardType,
-    isSingleLine : Boolean = true
+    isSingleLine : Boolean = true,
+    supportingText: String? = null
+
 ) {
     OutlinedTextField(
         value = valueState.value,
@@ -493,6 +391,11 @@ fun InputField(
             unfocusedIndicatorColor = Color.Transparent,
             cursorColor = Color.Black,
             containerColor = Color(241, 248, 247)
-        )
+        ),
+        supportingText = {
+            if (supportingText?.isNotEmpty() == true) {
+                Text(text = supportingText, color = Color.Red)
+            }
+        }
     )
 }

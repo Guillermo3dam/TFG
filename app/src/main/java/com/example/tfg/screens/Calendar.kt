@@ -96,7 +96,7 @@ fun Calendar() {
         firstVisibleMonth = currentMonth,
         firstDayOfWeek = daysOfWeek.first()
     )
-
+/*
     Column {
         var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
         HorizontalCalendar(
@@ -153,7 +153,7 @@ fun MonthHeader(month: CalendarMonth) {
         }
         val daysOfWeek = month.weekDays.first().map { it.date.dayOfWeek }
         DaysOfWeekTitle(daysOfWeek = daysOfWeek)
-    }
+    }*/
 }
 
 
