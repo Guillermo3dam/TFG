@@ -42,10 +42,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tfg.R
 import com.example.tfg.navigation.AppScreens
@@ -56,8 +58,6 @@ import com.example.tfg.models.viewmodels.LoginViewModel
 fun LoginScreen(navController: NavController) {
     Login(navController)
 }
-
-
 
 @Composable
 fun Logo(){
@@ -88,32 +88,28 @@ fun ForgorPassword(navController : NavController) {
     }
 }
 
-
-
-
 @Composable
 fun Login(
     navController: NavController,
     viewModel: LoginViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
-    ){
-    val showLoginForm = rememberSaveable {
-        mutableStateOf(true)
-    }
+) {
+    val showLoginForm = rememberSaveable { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf("") }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)){
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            Spacer(modifier = Modifier.padding(5.dp))
+            .background(Color.White)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier.weight(0.05f))
             Logo()
-            Spacer(modifier = Modifier.padding(top = 18.dp ))
-            if(showLoginForm.value){
-                Text(text = "Inicia sesion",
-                    color = Color.Black)
+            Spacer(modifier = Modifier.weight(0.1f))
+            if (showLoginForm.value) {
+                Text(text = "Inicia sesión", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 19.sp)
                 UserForm(
                     isCreateAccount = false,
                     navController = navController
@@ -124,8 +120,6 @@ fun Login(
                         errorMessage = error
                     }
                 }
-
-                // Mostrar el mensaje de error si hay uno.
                 if (errorMessage.isNotEmpty()) {
                     AlertDialog(
                         containerColor = Color.White,
@@ -133,30 +127,23 @@ fun Login(
                         title = { Text(text = "Error") },
                         text = { Text(errorMessage) },
                         confirmButton = {
-                            Button(
-                                onClick = { errorMessage = "" }
-                            ) {
+                            Button(onClick = { errorMessage = "" }) {
                                 Text("OK")
                             }
                         }
                     )
                 }
-
-            }
-            else{
-                Text(text = "Crea una cuenta",
-                    color = Color.Black)
+            } else {
+                Text(text = "Crea una cuenta", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 19.sp)
                 UserForm(
                     isCreateAccount = true,
                     navController = navController
-                )
-                {
-                    email, password ->
+                ) { email, password ->
                     Log.d("BestFriend", "Creando cuenta con $email y $password")
                     viewModel.createUsersWithEmailAndPassword(email, password, {
                         navController.navigate(route = AppScreens.HomeScreen.route)
                     }) { error ->
-                        errorMessage= error
+                        errorMessage = error
                     }
                 }
                 if (errorMessage.isNotEmpty()) {
@@ -166,41 +153,34 @@ fun Login(
                         title = { Text(text = "Error") },
                         text = { Text(errorMessage) },
                         confirmButton = {
-                            Button(
-                                onClick = { errorMessage = "" }
-                            ) {
+                            Button(onClick = { errorMessage = "" }) {
                                 Text("OK")
                             }
                         }
                     )
                 }
             }
-            Spacer(modifier = Modifier.padding(top = 140.dp))
+            Spacer(modifier = Modifier.weight(0.2f))
             HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
+                modifier = Modifier.fillMaxWidth().height(1.dp)
             )
-            Spacer(modifier = Modifier.padding(top = 14.dp))
-            Row (
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+            Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
-            ){
-                val text1 =
-                    if(showLoginForm.value) "¿No tienes cuenta?"
-                else "¿Ya tienes cuenta?"
-                val text2 =
-                    if(showLoginForm.value) "¿Regístrate?"
-                    else "¿Inicia sesión?"
+            ) {
+                val text1 = if (showLoginForm.value) "¿No tienes cuenta?" else "¿Ya tienes cuenta?"
+                val text2 = if (showLoginForm.value) "¿Regístrate?" else "¿Inicia sesión?"
 
                 Text(text = text1, color = Color.Black)
-                Text(text = text2,
-                    modifier = Modifier
-                        .clickable { showLoginForm.value = !showLoginForm.value }
+                Text(
+                    text = text2,
+                    modifier = Modifier.clickable { showLoginForm.value = !showLoginForm.value }
                         .padding(start = 5.dp),
-                    color =  Color(0xFF57B262),
+                    color = Color(0xFF57B262),
                 )
             }
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
@@ -226,8 +206,6 @@ fun UserForm(
                 validPasswordLength
     }
 
-
-
     val keyboardController = LocalSoftwareKeyboardController.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
@@ -246,8 +224,6 @@ fun UserForm(
             ForgorPassword(navController)
         else
             Spacer(modifier = Modifier.padding(16.dp))
-
-
 
         Spacer(modifier = Modifier.padding(8.dp))
         SubmitButton(
@@ -296,7 +272,6 @@ fun PasswordInput(
         VisualTransformation.None
     else PasswordVisualTransformation()
 
-
     OutlinedTextField(
         value = passwordState.value,
         onValueChange = {passwordState.value = it},
@@ -313,7 +288,6 @@ fun PasswordInput(
             if(passwordState.value.isNotBlank()){
                 PasswordVisibleIcon(passwordVisible)
             }
-            else null
         },
         textStyle = TextStyle(color = Color.Black),
         colors = TextFieldDefaults.textFieldColors(
@@ -327,7 +301,6 @@ fun PasswordInput(
                 Text(text = supportingText, color = Color.Red)
             }
         }
-
     )
 }
 

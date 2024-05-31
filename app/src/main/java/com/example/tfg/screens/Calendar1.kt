@@ -9,11 +9,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -122,15 +124,21 @@ fun Calendar1Screen(
 
                 when (val result = reminderViewModel.state.value) {
                     is ReminderState.Success -> {
+                        Row(
+                            modifier = Modifier.padding(start = 10.dp, bottom = 6.dp)
+                        ){
+                            Text(text = "Mostrando listas de recordatorios")
+
+                        }
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(max = 300.dp) // Limit the height of the list of reminders
-                                .padding(start = 10.dp, end = 10.dp, bottom = 72.dp) // Remove top padding and ensure bottom padding for FAB
+                                .heightIn(max = 320.dp)
+                                .padding(start = 10.dp, end = 10.dp, bottom = 72.dp)
                         ) {
                             items(result.data) { reminder ->
                                 ReminderCard(reminder, dogViewModel){
-                                    //reminderViewModel.deleteReminderFromCurrentUser(reminder)
+                                    reminderViewModel.deleteReminderFromCurrentUser(reminder)
                                 }
                             }
                         }
@@ -146,7 +154,7 @@ fun Calendar1Screen(
                             Row (
                                 horizontalArrangement = Arrangement.Center
                             ){
-                                Text(text = "Cargando..")
+                                Text(text = "Cargando recordatorios..")
 
                             }
                         }
@@ -221,9 +229,8 @@ fun Calendar1Screen(
 fun ReminderCard(
     reminder: Reminder,
     dogViewModel: DogViewModel = viewModel(),
-    onClick: () -> Unit,
-
-    ) {
+    onDeleteClick: () -> Unit // Añadimos este parámetro
+) {
     var dog by remember { mutableStateOf<Dog?>(null) }
 
     LaunchedEffect(reminder.dogId) {
@@ -232,21 +239,46 @@ fun ReminderCard(
         }
     }
 
-    ElevatedCard(
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = Color(0xFFF1F8F7),
             contentColor = Color.Black
-        ),
-        onClick = onClick
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = if (dog != null) "Perro: ${dog!!.name}" else "Cargando información del perro...", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Descripción: ${reminder.description}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Fecha: ${reminder.date} ${reminder.hour}", style = MaterialTheme.typography.bodyMedium)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (dog != null) "${dog!!.name.uppercase()}" else "Cargando información del perro...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "${reminder.date} ${reminder.hour}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Spacer(modifier = Modifier.padding(6.dp))
+            Text(
+                text = reminder.description,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            IconButton(
+                onClick = onDeleteClick,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = Color.Red
+                )
+            }
         }
     }
 }
