@@ -1,8 +1,6 @@
 package com.example.tfg.screens
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,11 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.tfg.models.viewmodels.UserViewModel
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -47,11 +40,11 @@ import kotlinx.coroutines.launch
 fun ForgotPasswordScreen(navController: NavHostController, viewModel: UserViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
 
     val email = rememberSaveable { mutableStateOf("") }
-    val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email.value).matches()
+    val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email.value).matches() // compruebo si el email esta bien formado
 
     val valido = remember(email.value) { email.value.trim().isNotEmpty() && isEmailValid}
 
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val keyboardController = LocalSoftwareKeyboardController.current // para cambiar el tipo de teclado
 
     var dialogVisible by remember { mutableStateOf(false) }
     var dialogTitle by remember { mutableStateOf("") }
@@ -125,7 +118,6 @@ fun ForgotPasswordScreen(navController: NavHostController, viewModel: UserViewMo
                         }
                     }
 
-                    // Diálogo para mostrar mensajes
                     if (dialogVisible) {
                         AlertDialog(
                             containerColor = Color.White,

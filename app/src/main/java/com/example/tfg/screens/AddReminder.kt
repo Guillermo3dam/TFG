@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
-import com.example.tfg.models.classes.Dog
 import com.example.tfg.models.classes.Reminder
 import com.example.tfg.models.viewmodels.DogState
 import com.example.tfg.models.viewmodels.DogViewModel
@@ -48,7 +47,6 @@ fun AddReminderScreen(
 
     Log.d("addreminderscreen", "Fecha que llega: $date")
 
-    var dog by remember { mutableStateOf<Dog?>(null) }
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -58,11 +56,11 @@ fun AddReminderScreen(
     val snackState = remember { SnackbarHostState() }
     val snackScope = rememberCoroutineScope()
 
-
     LaunchedEffect(Unit) {
         dogViewModel.getDogs()
     }
-
+    // LaunchedEffect se usa para ejecutar una operación de suspensión en el inicio del Composable.
+    // Unit se pasa como clave para asegurarse de que la operación se ejecute solo una vez cuando el Composable se inicia.
     Box(
         modifier = Modifier.fillMaxSize()
     ) {

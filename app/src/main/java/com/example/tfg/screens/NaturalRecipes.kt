@@ -139,11 +139,12 @@ fun ItemsTabsContent(pagerState: PagerState, recipe: Recipe) {
         { Utensils(recipe) },
         { Instructions(recipe) }
     )
-
+    //  una lista de lambdas composables, cada una de las cuales representa el contenido de una pestaña
 
     HorizontalPager(state = pagerState) { page ->
         tabs[page]()
     }
+    // HorizontalPager muestra el contenido correspondiente a la pestaña seleccionada
 }
 
 @Composable
@@ -220,8 +221,6 @@ fun Tabs(pagerState: PagerState) {
         }
     }
 }
-
-
 
 @Composable
 fun ItemsTabsContent(text: String) {

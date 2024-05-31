@@ -22,10 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import com.example.tfg.models.classes.Dog
 import com.example.tfg.models.viewmodels.DogViewModel
-import com.example.tfg.navigation.AppScreens
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -106,7 +103,7 @@ fun AddDogForm(
 
     // Mutable state for the selected date
     var birthdate by remember { mutableStateOf<LocalDate?>(null) }
-    var dateString = ""
+    var dateString: String
 
 
     var allOptionsSelected by remember { mutableStateOf(false) }
@@ -179,7 +176,7 @@ fun AddDogForm(
         ) {
             listOf(true to "Macho", false to "Hembra").forEach { (value, label) ->
                 Row(
-                    Modifier.padding(horizontal = 16.dp),
+                    Modifier.padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
@@ -191,7 +188,6 @@ fun AddDogForm(
                         },
                         colors = RadioButtonDefaults.colors(selectedColor = Color.Black)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = label,
                         color = Color.Black,
@@ -214,7 +210,7 @@ fun AddDogForm(
         ) {
             listOf(true to "Si", false to "No").forEach { (value, label) ->
                 Row(
-                    Modifier.padding(horizontal = 16.dp),
+                    Modifier.padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
@@ -226,7 +222,6 @@ fun AddDogForm(
                         },
                         colors = RadioButtonDefaults.colors(selectedColor = Color.Black)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = label,
                         color = Color.Black,
@@ -252,7 +247,7 @@ fun AddDogForm(
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
-        allOptionsSelected = selectedGender.value.isNotBlank() && selectedNeutered.value.isNotBlank() && name.value.isNotBlank() && birthdate != null && isMale != null && isDogNeutered != null
+        allOptionsSelected = selectedGender.value.isNotBlank() && selectedNeutered.value.isNotBlank() && name.value.isNotBlank() && birthdate != null && isMale != null && isDogNeutered != null // compruebo que todos los campos no estan null para activar el boton
 
         SubmitButton(textId = "Añadir perro", inputValido = allOptionsSelected) {
             dateString = "${birthdate!!.dayOfMonth}/${birthdate!!.monthValue}/${birthdate!!.year}"
@@ -270,7 +265,7 @@ fun AddDogForm(
                     )
                 }
             }
-            name.value = ""
+            name.value = "" // reseteo los campos para que el usuario no añada por error mas perros
             birthdate = null
             isMale = null
             isDogNeutered = null
@@ -325,10 +320,7 @@ fun AddDogForm(
                     }
                 }
             ) {
-
-
                 MyDatePicker(state)
-
             }
         }
     }
@@ -341,7 +333,7 @@ fun MyDatePicker(
 ) {
     DatePicker(
         state = state,
-        colors = DatePickerDefaults.colors(
+        colors = DatePickerDefaults.colors( // modifico los colores por defecto del datepicker
             containerColor = Color.White,
             titleContentColor = Color.Black,
             weekdayContentColor = Color.Black,

@@ -1,6 +1,6 @@
 package com.example.tfg.screens
 
-import androidx.activity.compose.BackHandler
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.tfg.R
-import com.example.tfg.models.classes.Recipe
 import com.example.tfg.models.viewmodels.UserViewModel
 import com.example.tfg.navigation.AppScreens
 import com.google.firebase.auth.FirebaseAuth
@@ -43,6 +43,7 @@ fun HomeScreen(
 
     viewModel.getUser()
     val userName = viewModel.user.value.name
+    val context = LocalContext.current
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -53,12 +54,12 @@ fun HomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp), // Añadimos un padding a la fila para que no esté pegada al borde
+                    .padding(bottom = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(80.dp) // Reducimos el tamaño del contenedor de la imagen
+                        .size(80.dp)
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.profile),
@@ -67,7 +68,7 @@ fun HomeScreen(
                             .fillMaxSize()
                             .clip(CircleShape)
                             .clickable {
-
+                                Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show()
                             }
                     )
                     Icon(

@@ -23,10 +23,6 @@ class DogViewModel : ViewModel() {
 
     var state: MutableState<DogState> = mutableStateOf(DogState.Empty)
     var doglist: MutableList<Dog> = mutableListOf()
-    var selectedDog: MutableState<Dog?> = mutableStateOf(null)
-
-
-
 
     fun updateDog(id: String, name: String, birthday: String, isMale: Boolean, isNeutered: Boolean, isPPP: Boolean) {
         val userDocumentRef = db.collection("users").document(userEmail)
@@ -67,11 +63,6 @@ class DogViewModel : ViewModel() {
     }
 
 
-
-
-
-
-
     fun getDogById(dogId: String, callback: (Dog?) -> Unit) {
         if (auth.currentUser != null) {
             val userDocumentRef = db.collection("users").document(userEmail)
@@ -101,9 +92,6 @@ class DogViewModel : ViewModel() {
             callback(null)
         }
     }
-
-
-
 
     fun deleteDog(dogId: String, reminderViewModel: ReminderViewModel) {
         if (auth.currentUser != null) {

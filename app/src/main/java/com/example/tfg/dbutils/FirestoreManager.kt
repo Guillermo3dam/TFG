@@ -14,13 +14,9 @@ class FirestoreManager : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
 
     private val auth : FirebaseAuth = Firebase.auth
-    var userId = auth.currentUser?.uid
 
 
-    suspend fun updateUser(user: User) {
-        val userRef = user.id?.let { firestore.collection("users").document(it) }
-        userRef?.set(user)?.await()
-    }
+
 
 
     suspend fun deleteUser(email: String) {

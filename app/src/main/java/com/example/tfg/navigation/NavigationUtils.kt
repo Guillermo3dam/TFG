@@ -6,4 +6,4 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun currentRoute(navController: NavController) : String? =
-    navController.currentBackStackEntryAsState().value?.destination?.route
+    navController.currentBackStackEntryAsState().value?.destination?.route // obtiene la ruta en la que se encuentra

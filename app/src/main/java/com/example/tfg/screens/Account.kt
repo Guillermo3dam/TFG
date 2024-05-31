@@ -3,6 +3,7 @@ package com.example.tfg.screens
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -59,7 +61,7 @@ fun Settings(
     navController: NavController,
     viewModel: FirestoreManager = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-
+    val context = LocalContext.current // Obtiene el contexto actual usando LocalContext.current, que es una forma de acceder al contexto en una función composable.
     var showDialogExit by remember { mutableStateOf(false ) }
     var showDialogDeleteAccount by remember { mutableStateOf(false ) }
 
@@ -76,7 +78,7 @@ fun Settings(
                 option = "Editar perfil",
                 icon = Icons.Outlined.AccountCircle
             ) {
-                // añadir ruta a nueva ventana
+                Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show()
             }
 
             ItemSettings(

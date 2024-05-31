@@ -32,7 +32,7 @@ fun AppNavigation(
                 LoginScreen(navController)
             }
             composable(route = AppScreens.HomeScreen.route) {
-                BackHandler {
+                BackHandler { // capturo el backhandler que tiene por defecto para que si se encuentra en esta ruta y le damos a atras la app se cierre
                     (context as ComponentActivity)?.finish()
                 }
                 HomeScreen(navController)
@@ -44,7 +44,7 @@ fun AppNavigation(
                 AddDogScreen(navController)
             }
             composable(route = AppScreens.CalendarScreen.route) {
-                Calendar1Screen(navController)
+                CalendarScreen(navController)
             }
             composable(route = AppScreens.UpdatePasswordScreen.route) {
                 UpdatePasswordScreen(navController)
@@ -65,6 +65,11 @@ fun AppNavigation(
                 val id = backStackEntry.arguments?.getString("id") ?: ""
                 SelectedDogScreen(navController = navController, id = id)
             }
+            // Extrae el valor del parámetro 'id' de los argumentos del backStackEntry.
+            // backStackEntry.arguments obtiene el Bundle de argumentos.
+            // getString("id") intenta obtener el valor del argumento 'id'.
+            // ?: "" asigna una cadena vacía si el argumento 'id' es nulo.
+            // y navego a la ruta pasandole el id
             composable(route = AppScreens.AddReminderScreen.route + "/{date}") { backStackEntry ->
                 val date = backStackEntry.arguments?.getString("date") ?: ""
                 AddReminderScreen(navController = navController, date = date)

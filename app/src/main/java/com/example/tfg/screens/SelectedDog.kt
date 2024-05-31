@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -124,6 +126,7 @@ fun MyDogForm(
         modifier = modifier
             .fillMaxSize()
             .padding(20.dp)
+            .verticalScroll(state = rememberScrollState())
     ) {
         Text(
             text = "¿Cómo se llama?*",
@@ -177,7 +180,7 @@ fun MyDogForm(
         ) {
             listOf(true to "Macho", false to "Hembra").forEach { (value, label) ->
                 Row(
-                    Modifier.padding(horizontal = 16.dp),
+                    Modifier.padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
@@ -185,7 +188,6 @@ fun MyDogForm(
                         onClick = { isMale = value },
                         colors = RadioButtonDefaults.colors(selectedColor = Color.Black)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = label,
                         color = Color.Black,
@@ -208,7 +210,7 @@ fun MyDogForm(
         ) {
             listOf(true to "Sí", false to "No").forEach { (value, label) ->
                 Row(
-                    Modifier.padding(horizontal = 16.dp),
+                    Modifier.padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
@@ -216,7 +218,6 @@ fun MyDogForm(
                         onClick = { isNeutered = value },
                         colors = RadioButtonDefaults.colors(selectedColor = Color.Black)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = label,
                         color = Color.Black,
@@ -316,8 +317,6 @@ fun formatDate(dateString: String): String {
         dateString
     }
 }
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
@@ -33,10 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -45,22 +39,17 @@ import com.google.firebase.ktx.Firebase
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdatePasswordScreen(navController: NavHostController) {
-    // Variables de estado para la nueva contraseña, confirmación y visibilidad de los campos de contraseña
     val newPassword = rememberSaveable { mutableStateOf("") }
     val confirmPassword = rememberSaveable { mutableStateOf("") }
     val newPasswordVisible = rememberSaveable { mutableStateOf(false) }
     val confirmPasswordVisible = rememberSaveable { mutableStateOf(false) }
 
-    // Estado para mostrar el mensaje de contraseña no cambiada
     var showNoPasswordChangedAlert by remember { mutableStateOf(false) }
 
-    // Estado para mostrar el mensaje de error si las contraseñas no coinciden
     var showErrorPasswordMismatch by remember { mutableStateOf(false) }
 
-    // Estado para mostrar el mensaje de error si la contraseña no tiene al menos 6 caracteres
     var showErrorPasswordLength by remember { mutableStateOf(false) }
 
-    // Controlador del teclado
     val keyboardController = LocalSoftwareKeyboardController.current
 
     // Validar si las contraseñas coinciden
@@ -110,7 +99,6 @@ fun UpdatePasswordScreen(navController: NavHostController) {
                 ) {
                     Spacer(modifier = Modifier.padding(35.dp))
 
-                    // Labels y campos de entrada de contraseña
                     PasswordInput(
                         passwordState = newPassword,
                         labelId = "Introduce nueva contraseña",
@@ -124,7 +112,6 @@ fun UpdatePasswordScreen(navController: NavHostController) {
                         supportingText = if (newPassword.value.isNotEmpty() && !validConfirmPasswordLength) "La contraseña debe tener al menos 6 caracteres" else if (!passwordsMatch) "Las contraseñas no coinciden" else null
                     )
 
-                    // Botón de confirmación
                     SubmitButton(
                         textId = "Confirmar",
                         inputValido = passwordsMatch && validPasswordLength
@@ -172,17 +159,17 @@ fun UpdatePasswordScreen(navController: NavHostController) {
 
                     // Mostrar el mensaje de contraseña no cambiada si showNoPasswordChangedAlert es true
                     if (showNoPasswordChangedAlert) {
-                        showPasswordChangedDialog(onDismiss = { showNoPasswordChangedAlert = false })
+                        ShowPasswordChangedDialog(onDismiss = { showNoPasswordChangedAlert = false })
                     }
 
                     // Mostrar el mensaje de error si las contraseñas no coinciden
                     if (showErrorPasswordMismatch) {
-                        showErrorDialog(onDismiss = { showErrorPasswordMismatch = false }, title = "Error", message = "Las contraseñas no coinciden")
+                        ShowErrorDialog(onDismiss = { showErrorPasswordMismatch = false }, title = "Error", message = "Las contraseñas no coinciden")
                     }
 
                     // Mostrar el mensaje de error si la contraseña no tiene al menos 6 caracteres
                     if (showErrorPasswordLength) {
-                        showErrorDialog(onDismiss = { showErrorPasswordLength = false }, title = "Error", message = "La contraseña debe tener al menos 6 caracteres")
+                        ShowErrorDialog(onDismiss = { showErrorPasswordLength = false }, title = "Error", message = "La contraseña debe tener al menos 6 caracteres")
                     }
                 }
             }
@@ -192,7 +179,7 @@ fun UpdatePasswordScreen(navController: NavHostController) {
 
 
 @Composable
-fun showErrorDialog(
+fun ShowErrorDialog(
     onDismiss: () -> Unit,
     title: String,
     message: String
@@ -211,7 +198,7 @@ fun showErrorDialog(
 }
 
 @Composable
-fun showPasswordChangedDialog(
+fun ShowPasswordChangedDialog(
     onDismiss: () -> Unit
 ) {
     AlertDialog(
@@ -226,19 +213,4 @@ fun showPasswordChangedDialog(
     )
 }
 
-@Composable
-fun showErrorDialog(
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        containerColor = Color.White,
-        onDismissRequest = { onDismiss() },
-        confirmButton = {
-            TextButton(onClick = { onDismiss() }) {
-                Text("OK")
-            }
-        },
-        title = { Text("Error") },
-        text = { Text("Las contraseñas deben tener al menos 6 caracteres") }
-    )
-}
+

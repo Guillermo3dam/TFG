@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import com.example.tfg.models.classes.Dog
 import com.example.tfg.models.viewmodels.DogState
@@ -178,7 +177,6 @@ fun ItemDog(
 
     val showDialog = remember { mutableStateOf(false) }
 
-    // Función para mostrar el diálogo de confirmación
     fun showDeleteConfirmationDialog() {
         showDialog.value = true
     }

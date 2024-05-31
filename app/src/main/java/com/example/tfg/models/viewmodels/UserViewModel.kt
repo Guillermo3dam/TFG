@@ -3,8 +3,6 @@ package com.example.tfg.models.viewmodels
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tfg.models.classes.User
@@ -36,7 +34,6 @@ class UserViewModel : ViewModel() {
         val auth: FirebaseAuth = Firebase.auth
         val userEmail = auth.currentUser?.email.toString()
 
-        val currentuser = auth.currentUser
         state.value = UserState.Loading
 
 

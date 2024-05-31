@@ -9,7 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,7 +35,7 @@ import java.time.ZoneId
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Calendar1Screen(
+fun CalendarScreen(
     navController: NavController,
     reminderViewModel: ReminderViewModel = viewModel(),
     dogViewModel: DogViewModel = viewModel()
@@ -59,7 +59,10 @@ fun Calendar1Screen(
             Log.d("Calendar1Screen", "Fecha seleccionada: $date")
         }
     }
-
+// LaunchedEffect se usa para ejecutar una operación de suspensión en respuesta a cambios en state.selectedDateMillis
+// Cuando state.selectedDateMillis cambia, se obtiene el valor de millis
+// se convierte en una fecha local y se actualiza la variable selectedDate
+// Luego, se formatea la fecha en formato "día/mes/año" y se asigna a la variable date
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -274,7 +277,7 @@ fun ReminderCard(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = Icons.Outlined.Delete,
                     contentDescription = "Delete",
                     tint = Color.Red
                 )
